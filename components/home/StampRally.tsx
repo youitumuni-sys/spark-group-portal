@@ -40,7 +40,7 @@ export function StampRally() {
                     ? `${brand.bg} ring-2 shadow-sm`
                     : 'bg-gray-100 border-2 border-dashed border-gray-200'
                 }`}
-                style={brand.visited ? { ringColor: brand.color } : {}}
+                style={brand.visited ? { '--tw-ring-color': brand.color } as React.CSSProperties : {}}
               >
                 {brand.visited ? (
                   <>
