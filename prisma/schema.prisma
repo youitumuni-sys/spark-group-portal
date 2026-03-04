@@ -322,7 +322,24 @@ model Favorite {
 }
 
 // ============================================================
-// 13. Schedule（出勤スケジュール）
+// 13. Notice（お知らせ）
+// ============================================================
+
+model Notice {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  category    String    @default("general")
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isPublished, publishedAt])
+}
+
+// ============================================================
+// 14. Schedule（出勤スケジュール）
 // ============================================================
 
 model Schedule {

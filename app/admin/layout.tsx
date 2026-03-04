@@ -11,6 +11,7 @@ import {
   Ticket,
   Trophy,
   Clock,
+  Megaphone,
 } from 'lucide-react';
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/admin/coupons', label: 'クーポン管理', icon: Ticket },
   { href: '/admin/reservations', label: '予約管理', icon: Calendar },
   { href: '/admin/schedules', label: 'スケジュール管理', icon: Clock },
+  { href: '/admin/notices', label: 'お知らせ管理', icon: Megaphone },
   { href: '/admin/rankings', label: 'ランキング設定', icon: Trophy },
 ];
 

@@ -7,8 +7,9 @@ import { getReviews } from '@/lib/queries/reviews';
 import { getUserPointHistory, getUserPoints } from '@/lib/queries/points';
 import { getActiveCoupons } from '@/lib/queries/coupons';
 import { getUserById } from '@/lib/queries/users';
+import { getPublishedNotices } from '@/lib/queries/notices';
 import Link from 'next/link';
-import { Heart, Calendar, ChevronRight, Star, Crown, Gem, Flame, Sparkles, Shield, Clock, MessageSquare, TrendingUp } from 'lucide-react';
+import { Heart, Calendar, ChevronRight, Star, Crown, Gem, Flame, Sparkles, Shield, Clock, MessageSquare, TrendingUp, Bell } from 'lucide-react';
 import { AiMatch } from '@/components/home/AiMatch';
 import { StampRally } from '@/components/home/StampRally';
 import { DailyGacha } from '@/components/home/DailyGacha';
@@ -102,7 +103,7 @@ export default async function MypagePage() {
   if (!session?.user) redirect('/auth/signin');
   const userId = session.user.id;
 
-  const [userData, favorites, reservations, userReviews, pointHistory, activeCoupons, totalPoints] = await Promise.all([
+  const [userData, favorites, reservations, userReviews, pointHistory, activeCoupons, totalPoints, notices] = await Promise.all([
     getUserById(userId),
     getUserFavorites(userId),
     getUserReservations(userId),
@@ -110,6 +111,7 @@ export default async function MypagePage() {
     getUserPointHistory(userId),
     getActiveCoupons(),
     getUserPoints(userId),
+    getPublishedNotices(5),
   ]);
 
   // Filter reviews for this user
@@ -154,6 +156,54 @@ export default async function MypagePage() {
           {user.nickname || 'ゲスト'}さん
         </h1>
       </div>
+
+      {/* お知らせ */}
+      {notices.length > 0 && (
+        <section className="bg-white rounded-2xl border border-gray-100 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Bell className="w-4 h-4 text-blue-500" />
+            <p className="text-[13px] font-bold text-gray-900">お知らせ</p>
+          </div>
+          <div className="space-y-2">
+            {notices.map((notice) => {
+              const isNew = notice.publishedAt && Date.now() - new Date(notice.publishedAt).getTime() < 24 * 60 * 60 * 1000;
+              const categoryStyles: Record<string, string> = {
+                important: 'bg-red-50 text-red-600 border-red-100',
+                campaign: 'bg-purple-50 text-purple-600 border-purple-100',
+                maintenance: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+                general: 'bg-blue-50 text-blue-600 border-blue-100',
+              };
+              const categoryLabels: Record<string, string> = {
+                important: '重要',
+                campaign: 'キャンペーン',
+                maintenance: 'メンテナンス',
+                general: 'お知らせ',
+              };
+              const style = categoryStyles[notice.category] || categoryStyles.general;
+              return (
+                <div key={notice.id} className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
+                  <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${style}`}>
+                      {categoryLabels[notice.category] || 'お知らせ'}
+                    </span>
+                    {isNew && (
+                      <span className="text-[9px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">NEW</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-medium text-gray-900 truncate">{notice.title}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {notice.publishedAt
+                        ? new Date(notice.publishedAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })
+                        : ''}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* 会員カード（プレミアム感） */}
       <section className="relative">
