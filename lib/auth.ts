@@ -55,8 +55,8 @@ export const authConfig: NextAuthConfig = {
   ],
   session: { strategy: 'jwt' },
   pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
+    signIn: '/spark-group-portal/auth/signin',
+    error: '/spark-group-portal/auth/error',
   },
   callbacks: {
     async jwt({ token, user }) {
