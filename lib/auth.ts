@@ -8,6 +8,7 @@ import { prisma } from './db';
 
 export const authConfig: NextAuthConfig = {
   trustHost: true,
+  basePath: '/spark-group-portal/api/auth',
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     CredentialsProvider({
