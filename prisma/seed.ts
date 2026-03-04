@@ -144,16 +144,23 @@ async function main() {
     }));
   }
 
-  // イベント
+  // イベント（モックデータと同じ11件）
   const now = new Date();
   const events = [
-    { si: 0, title: '大奥 梅田 グランドオープン記念', desc: 'オープン記念特別割引実施中！新規のお客様は全コース2,000円OFF！', days: 14 },
-    { si: 2, title: 'ぷるるん小町 春の新人祭り', desc: '新人キャスト多数デビュー！指名料無料キャンペーン開催中。', days: 7 },
-    { si: 4, title: 'スパーク 梅田 リニューアルOPEN', desc: '完全リニューアル記念！全コース3,000円OFF + フリー指名で+10分延長。', days: 10 },
-    { si: 1, title: '大奥 難波 会員限定ナイトイベント', desc: '会員様限定の特別プラン。23時以降のご利用で特別割引。', days: 5 },
+    { si: 0, title: '期間限定イベント！！', desc: 'オールタイム終日開催の期間限定割引イベント。全コースでお得に遊べます！', image: 'https://img2.cityheaven.net/img/shop/k/ooku_ume/shps1650_2_20260228015109pc.jpeg?cache02=1&imgopt=y', daysAgo: 5, daysEnd: 25 },
+    { si: 1, title: '【新規割】大奥を初めての方はこの価格で！！', desc: '初回限定で全コース4,000円OFF。60分11,000円・75分13,500円〜。スタッフへ「新規割」とお伝えください。', image: 'https://img2.cityheaven.net/img/shop/k/ooku_nam/shps3108_2_20260105021350pc.jpeg?cache02=1&imgopt=y', daysAgo: 30, daysEnd: 30 },
+    { si: 2, title: '月間イベント開催中です！！', desc: 'イベントコース：75分通常12,000円→8,980円、100分通常14,000円→13,000円。入会金・パネル指名料込み。', image: 'https://img2.cityheaven.net/img/shop/k/pururun-komachi_umeda/shps1700000418_1_20260301072810pc.jpeg?cache02=1&imgopt=y', daysAgo: 1, daysEnd: 29 },
+    { si: 3, title: '🔰ご新規様限定割引', desc: '60分5,980円〜の超特価！初回来店のお客様限定。', image: 'https://img2.cityheaven.net/img/shop/k/pururun-komachi_kyobashi/shps1700000845_1_20260301004551pc.jpeg?cache02=1&imgopt=y', daysAgo: 30, daysEnd: 30 },
+    { si: 3, title: '🌸オールタイムイベント', desc: '75分8,980円〜。時間帯を問わずいつでも利用可能な常設割引。ぷるトン祭（2の付く日）も併催中。', image: 'https://img2.cityheaven.net/img/shop/k/pururun-komachi_kyobashi/shps1700000845_1_20260301004551pc.jpeg?cache02=1&imgopt=y', daysAgo: 10, daysEnd: 20 },
+    { si: 5, title: '♥ 新規割 FIRST TIME DISCOUNT 最大7,000円OFF', desc: '初回利用者限定。60分10,000円（通常16,000円）。クレジットカード決済対応。', image: 'https://img2.cityheaven.net/img/shop/k/spark_nihonbashi/shps1521_1_20260228023819pc.jpeg?cache02=1&imgopt=y', daysAgo: 30, daysEnd: 30 },
+    { si: 6, title: "3月イベント『春マン開』75分8,500円", desc: '難波店限定の月間超特価イベント。通常より3,000円以上割引。全女性が選び放題。', image: 'https://img2.cityheaven.net/img/shop/k/pururun-madamu_nanba/shps1710004547_2_20260301014553pc.jpeg?cache02=1&imgopt=y', daysAgo: 1, daysEnd: 30 },
+    { si: 6, title: 'オプション無料で使い放題♪', desc: '全オプション（電マ・バイブ・即尺・顔射等）が無料で利用可能な常設特典。', image: 'https://img2.cityheaven.net/img/shop/k/pururun-madamu_nanba/shps1710004547_2_20260301014553pc.jpeg?cache02=1&imgopt=y', daysAgo: 30, daysEnd: 60 },
+    { si: 7, title: '🎉グランドオープン記念イベント', desc: 'オープン記念の大特価！次回使えるクーポン配布中。地域最安値でのご案内。', image: 'https://img2.cityheaven.net/img/shop/k/pururun-madamu_juso/shps1710056861_1_20260210151819pc.jpeg?cache02=1&imgopt=y', daysAgo: 20, daysEnd: 10 },
+    { si: 8, title: '日本橋店限定【朝割】開催中！', desc: '早朝8:00〜9:59受付限定の特別割引。「初回予約半額DAY」も限定開催中。', image: 'https://img2.cityheaven.net/img/shop/k/ooku_nihombashi/shps1710023220_1_20260225225421pc.jpeg?cache02=1&imgopt=y', daysAgo: 10, daysEnd: 20 },
+    { si: 8, title: '5が付く日限定 -【大還元祭】-', desc: '大奥梅田・難波・日本橋の全店舗で毎月5・15・25日に開催する3店合同イベント。', image: 'https://img2.cityheaven.net/img/shop/k/ooku_nihombashi/shps1710023220_1_20260225225421pc.jpeg?cache02=1&imgopt=y', daysAgo: 1, daysEnd: 30 },
   ];
   for (const ev of events) {
-    await prisma.event.create({ data: { shopId: createdShops[ev.si].id, title: ev.title, description: ev.desc, startDate: now, endDate: new Date(now.getTime() + ev.days * 864e5) } });
+    await prisma.event.create({ data: { shopId: createdShops[ev.si].id, title: ev.title, description: ev.desc, image: ev.image, startDate: new Date(now.getTime() - ev.daysAgo * 864e5), endDate: new Date(now.getTime() + ev.daysEnd * 864e5) } });
   }
 
   // レビュー

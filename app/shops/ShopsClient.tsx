@@ -161,9 +161,9 @@ export default function ShopsClient({ shops: allShops, heavenCasts }: Props) {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {shops.map((shop) => {
               const images = shop.images as string[];
-              const thumbnail = freshImages[shop.id] || images?.[0];
+              const thumbnail = freshImages[shop.slug] || images?.[0];
               const brand = getBrandColor(shop.slug);
-              const hc = heavenCasts[shop.id];
+              const hc = heavenCasts[shop.slug];
               return (
                 <Link key={shop.id} href={`/shops/${shop.slug}`}>
                   <div className={`group overflow-hidden rounded-2xl border-t-4 ${brand.border} bg-white shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 h-full`}>

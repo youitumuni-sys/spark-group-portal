@@ -195,7 +195,7 @@ export const shops = [
 // ============================================================
 type HeavenCast = { name: string; image: string; age?: number; bust?: number; waist?: number; hip?: number };
 export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }> = {
-  'clshop001': { total: 150, casts: [
+  'ohoku-umeda': { total: 150, casts: [
     { name: 'れおな', age: 35, bust: 89, waist: 56, hip: 85, image: 'https://img2.cityheaven.net/img/girls/k/ooku_ume/grpb0041051909_0000000000pc.jpg?cache02=1771538860&imgopt=y' },
     { name: 'しおり', age: 36, bust: 89, waist: 57, hip: 87, image: 'https://img2.cityheaven.net/img/girls/k/ooku_ume/grpb0056484068_0000000000pc.jpg?cache02=1772406518&imgopt=y' },
     { name: 'るか', age: 28, bust: 91, waist: 56, hip: 85, image: 'https://img2.cityheaven.net/img/girls/k/ooku_ume/grpb0060554301_0000000000pc.jpg?cache02=1772367701&imgopt=y' },
@@ -205,7 +205,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: 'えりか', age: 34, bust: 85, waist: 55, hip: 83, image: 'https://img2.cityheaven.net/img/girls/k/ooku_ume/grpb0051525472_0000000000pc.jpg?cache02=1772413847&imgopt=y' },
     { name: 'ことの', age: 34, bust: 86, waist: 55, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/ooku_ume/grpb0058354038_0000000000pc.jpg?cache02=1772301889&imgopt=y' },
   ]},
-  'clshop002': { total: 94, casts: [
+  'ohoku-namba': { total: 94, casts: [
     { name: '五十嵐 らめ', age: 35, bust: 83, waist: 57, hip: 82, image: 'https://img2.cityheaven.net/img/girls/k/ooku_nam/grpb0023295379_0000000000pc.jpg?cache02=1772384169&imgopt=y' },
     { name: '櫻 えれん', age: 35, bust: 127, waist: 61, hip: 96, image: 'https://img2.cityheaven.net/img/icon/exist_limit_profile_2.png?cache02=1539328868&imgopt=y' },
     { name: '神崎 みお', age: 38, bust: 83, waist: 57, hip: 82, image: 'https://img2.cityheaven.net/img/girls/k/ooku_nam/grpb0052322810_0000000000pc.jpg?cache02=1769876511&imgopt=y' },
@@ -215,7 +215,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: '浜崎 れみ', age: 38, bust: 85, waist: 58, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/ooku_nam/grpb0056747887_0000000000pc.jpg?cache02=1748226820&imgopt=y' },
     { name: '黒木 なつみ', age: 38, bust: 85, waist: 58, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/ooku_nam/grpb0052726976_0000000000pc.jpg?cache02=1763600103&imgopt=y' },
   ]},
-  'clshop003': { total: 100, casts: [
+  'pururun-umeda': { total: 100, casts: [
     { name: 'みわ', age: 34, bust: 100, waist: 64, hip: 98, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_umeda/grpb0013433272_0000000000pc.jpg?cache02=1772375270&imgopt=y' },
     { name: 'ゆい', age: 25, bust: 89, waist: 59, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_umeda/grpb0053522431_0000000000pc.jpg?cache02=1772274436&imgopt=y' },
     { name: 'あんり', age: 31, bust: 90, waist: 61, hip: 90, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_umeda/grpb0043778650_0000000000pc.jpg?cache02=1772338400&imgopt=y' },
@@ -225,7 +225,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: 'ふう', age: 28, bust: 89, waist: 61, hip: 90, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_umeda/grpb0039632385_0000000000pc.jpg?cache02=1772353129&imgopt=y' },
     { name: 'さよ', age: 26, bust: 103, waist: 59, hip: 90, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_umeda/grpb0059166137_0000000000pc.jpg?cache02=1771591564&imgopt=y' },
   ]},
-  'clshop004': { total: 71, casts: [
+  'pururun-kyobashi': { total: 71, casts: [
     { name: 'あおい', age: 27, bust: 86, waist: 56, hip: 87, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_kyobashi/grpb0060410381_0000000000pc.jpg?cache02=1772188841&imgopt=y' },
     { name: 'みゆ', age: 22, bust: 81, waist: 54, hip: 82, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_kyobashi/grpb0062049514_0000000000pc.jpg?cache02=1772189012&imgopt=y' },
     { name: 'じゅん', age: 20, bust: 93, waist: 59, hip: 85, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_kyobashi/grpb0054706768_0000000000pc.jpg?cache02=1769875604&imgopt=y' },
@@ -235,7 +235,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: 'こより', age: 30, bust: 87, waist: 59, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_kyobashi/grpb0056857323_0000000000pc.jpg?cache02=1772009816&imgopt=y' },
     { name: 'さな', age: 27, bust: 98, waist: 62, hip: 90, image: 'https://img2.cityheaven.net/img/girls/k/pururun-komachi_kyobashi/grpb0051543919_0000000000pc.jpg?cache02=1771210305&imgopt=y' },
   ]},
-  'clshop005': { total: 78, casts: [
+  'spark-umeda': { total: 78, casts: [
     { name: 'せりな', age: 23, bust: 88, waist: 54, hip: 85, image: 'https://img2.cityheaven.net/img/girls/k/spark_umeda/grpb0062286386_0000000000pc.jpg?cache02=1772314294&imgopt=y' },
     { name: 'くらら', age: 22, bust: 83, waist: 53, hip: 82, image: 'https://img2.cityheaven.net/img/girls/k/spark_umeda/grpb0059767587_0000000000pc.jpg?cache02=1764579710&imgopt=y' },
     { name: 'ゆのん', age: 22, bust: 86, waist: 55, hip: 84, image: 'https://img2.cityheaven.net/img/girls/k/spark_umeda/grpb0063189206_0000000000pc.jpg?cache02=1772308849&imgopt=y' },
@@ -245,7 +245,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: 'ちか', age: 24, bust: 89, waist: 54, hip: 80, image: 'https://img2.cityheaven.net/img/girls/k/spark_umeda/grpb0053637690_0000000000pc.jpg?cache02=1766693716&imgopt=y' },
     { name: 'はな', age: 22, bust: 85, waist: 54, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/spark_umeda/grpb0050451267_0000000000pc.jpg?cache02=1761931098&imgopt=y' },
   ]},
-  'clshop006': { total: 102, casts: [
+  'spark-nihonbashi': { total: 102, casts: [
     { name: 'ひめ', age: 22, bust: 87, waist: 54, hip: 84, image: 'https://img2.cityheaven.net/img/girls/k/spark_nihonbashi/grpb0064809575_0000000000pc.jpg?cache02=1772347770&imgopt=y' },
     { name: 'びび', age: 22, bust: 91, waist: 54, hip: 84, image: 'https://img2.cityheaven.net/img/girls/k/spark_nihonbashi/grpb0064792284_0000000000pc.jpg?cache02=1772270695&imgopt=y' },
     { name: 'れいな', age: 22, bust: 81, waist: 54, hip: 83, image: 'https://img2.cityheaven.net/img/girls/k/spark_nihonbashi/grpb0064748945_0000000000pc.jpg?cache02=1772087426&imgopt=y' },
@@ -255,7 +255,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: 'りあ', age: 21, bust: 90, waist: 54, hip: 84, image: 'https://img2.cityheaven.net/img/girls/k/spark_nihonbashi/grpb0057158443_0000000000pc.jpg?cache02=1772360504&imgopt=y' },
     { name: 'らみぃ', age: 18, bust: 85, waist: 56, hip: 83, image: 'https://img2.cityheaven.net/img/girls/k/spark_nihonbashi/grpb0060052247_0000000000pc.jpg?cache02=1772101113&imgopt=y' },
   ]},
-  'clshop007': { total: 87, casts: [
+  'pururun-madam-namba': { total: 87, casts: [
     { name: 'るい', age: 40, bust: 90, waist: 59, hip: 92, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_nanba/grpb0048491427_0000000000pc.jpg?cache02=1772415051&imgopt=y' },
     { name: 'ゆめか', age: 45, bust: 80, waist: 57, hip: 80, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_nanba/grpb0043731061_0000000000pc.jpg?cache02=1772301804&imgopt=y' },
     { name: 'じゅんな', age: 40, bust: 94, waist: 59, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_nanba/grpb0051372518_0000000000pc.jpg?cache02=1772301820&imgopt=y' },
@@ -265,7 +265,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: 'あん', age: 42, bust: 85, waist: 59, hip: 90, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_nanba/grpb0052290165_0000000000pc.jpg?cache02=1768611842&imgopt=y' },
     { name: 'きょうか', age: 40, bust: 88, waist: 59, hip: 89, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_nanba/grpb0053654391_0000000000pc.jpg?cache02=1737015903&imgopt=y' },
   ]},
-  'clshop008': { total: 19, casts: [
+  'pururun-madam-juso': { total: 19, casts: [
     { name: 'まりあ', age: 44, bust: 86, waist: 58, hip: 88, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_juso/grpb0064450733_0000000000pc.jpg?cache02=1772414847&imgopt=y' },
     { name: 'せな', age: 37, bust: 90, waist: 60, hip: 88, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_juso/grpb0064693971_0000000000pc.jpg?cache02=1772414859&imgopt=y' },
     { name: 'りりか', age: 24, bust: 89, waist: 60, hip: 87, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_juso/grpb0064753533_0000000000pc.jpg?cache02=1772412885&imgopt=y' },
@@ -275,7 +275,7 @@ export const heavenCasts: Record<string, { total: number; casts: HeavenCast[] }>
     { name: 'ともえ', age: 45, bust: 110, waist: 65, hip: 103, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_juso/grpb0064722680_0000000000pc.jpg?cache02=1772414919&imgopt=y' },
     { name: 'そら', age: 27, bust: 105, waist: 63, hip: 101, image: 'https://img2.cityheaven.net/img/girls/k/pururun-madamu_juso/grpb0064508790_0000000000pc.jpg?cache02=1772412948&imgopt=y' },
   ]},
-  'clshop009': { total: 80, casts: [
+  'ohoku-nihonbashi': { total: 80, casts: [
     { name: '雪平 なぎさ', age: 37, bust: 96, waist: 58, hip: 87, image: 'https://img2.cityheaven.net/img/girls/k/ooku_nihombashi/grpb0060051861_0000000000pc.jpg?cache02=1770198074&imgopt=y' },
     { name: '神木 ゆい', age: 31, bust: 81, waist: 55, hip: 83, image: 'https://img2.cityheaven.net/img/girls/k/ooku_nihombashi/grpb0060583111_0000000000pc.jpg?cache02=1770199335&imgopt=y' },
     { name: '月島 みゆ', age: 32, bust: 85, waist: 56, hip: 86, image: 'https://img2.cityheaven.net/img/girls/k/ooku_nihombashi/grpb0058602433_0000000000pc.jpg?cache02=1770199449&imgopt=y' },
@@ -297,8 +297,8 @@ import shopImageData from './shop-images.json';
 // 店舗画像URLをスクレイピング結果で上書き（CityHeavenがURLを定期変更するため）
 const _shopImages = shopImageData as Record<string, string>;
 for (const shop of shops) {
-  if (_shopImages[shop.id]) {
-    shop.images = [_shopImages[shop.id]];
+  if (_shopImages[shop.slug]) {
+    shop.images = [_shopImages[shop.slug]];
   }
 }
 
@@ -311,15 +311,15 @@ export const heavenReviews: Record<string, { totalCount: number; reviews: Heaven
 
 // CityHeaven店舗URL（口コミ「もっと見る」リンク用）
 export const heavenUrls: Record<string, string> = {
-  clshop001: 'https://www.cityheaven.net/osaka/A2701/A270101/ooku_ume/',
-  clshop002: 'https://www.cityheaven.net/osaka/A2702/A270201/ooku_nam/',
-  clshop003: 'https://www.cityheaven.net/osaka/A2701/A270101/pururun-komachi_umeda/',
-  clshop004: 'https://www.cityheaven.net/osaka/A2701/A270105/pururun-komachi_kyobashi/',
-  clshop005: 'https://www.cityheaven.net/osaka/A2701/A270101/spark_umeda/',
-  clshop006: 'https://www.cityheaven.net/osaka/A2701/A270104/spark_nihonbashi/',
-  clshop007: 'https://www.cityheaven.net/osaka/A2702/A270201/pururun-madamu_nanba/',
-  clshop008: 'https://www.cityheaven.net/osaka/A2701/A270103/pururun-madamu_juso/',
-  clshop009: 'https://www.cityheaven.net/osaka/A2702/A270202/ooku_nihombashi/',
+  'ohoku-umeda': 'https://www.cityheaven.net/osaka/A2701/A270101/ooku_ume/',
+  'ohoku-namba': 'https://www.cityheaven.net/osaka/A2702/A270201/ooku_nam/',
+  'pururun-umeda': 'https://www.cityheaven.net/osaka/A2701/A270101/pururun-komachi_umeda/',
+  'pururun-kyobashi': 'https://www.cityheaven.net/osaka/A2701/A270105/pururun-komachi_kyobashi/',
+  'spark-umeda': 'https://www.cityheaven.net/osaka/A2701/A270101/spark_umeda/',
+  'spark-nihonbashi': 'https://www.cityheaven.net/osaka/A2701/A270104/spark_nihonbashi/',
+  'pururun-madam-namba': 'https://www.cityheaven.net/osaka/A2702/A270201/pururun-madamu_nanba/',
+  'pururun-madam-juso': 'https://www.cityheaven.net/osaka/A2701/A270103/pururun-madamu_juso/',
+  'ohoku-nihonbashi': 'https://www.cityheaven.net/osaka/A2702/A270202/ooku_nihombashi/',
 };
 
 // Helper to look up a shop by id

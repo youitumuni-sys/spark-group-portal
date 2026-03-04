@@ -50,9 +50,9 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   if (!foundShop) notFound();
 
   // Heaven data
-  const hCasts = getHeavenCastsByShopId(foundShop.id);
-  const hReviews = getHeavenReviewsByShopId(foundShop.id);
-  const hUrl = getHeavenUrlByShopId(foundShop.id);
+  const hCasts = getHeavenCastsByShopId(foundShop.slug);
+  const hReviews = getHeavenReviewsByShopId(foundShop.slug);
+  const hUrl = getHeavenUrlByShopId(foundShop.slug);
 
   const newFaces = foundShop.staff.filter((s) => s.isNew);
 

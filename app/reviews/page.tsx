@@ -9,15 +9,15 @@ export const metadata = {
 };
 
 const brandColors: Record<string, string> = {
-  clshop001: '#8B1A2B',
-  clshop002: '#A0243D',
-  clshop003: '#E85B93',
-  clshop004: '#D94F84',
-  clshop005: '#7C4DFF',
-  clshop006: '#6B3FE8',
-  clshop007: '#C2185B',
-  clshop008: '#AD1457',
-  clshop009: '#7B1A2B',
+  'ohoku-umeda': '#8B1A2B',
+  'ohoku-namba': '#A0243D',
+  'pururun-umeda': '#E85B93',
+  'pururun-kyobashi': '#D94F84',
+  'spark-umeda': '#7C4DFF',
+  'spark-nihonbashi': '#6B3FE8',
+  'pururun-madam-namba': '#C2185B',
+  'pururun-madam-juso': '#AD1457',
+  'ohoku-nihonbashi': '#7B1A2B',
 };
 
 function renderStars(score: string) {
@@ -69,10 +69,10 @@ export default async function ReviewsPage() {
 
       {/* 店舗ごとにセクション */}
       {activeShops.map((shop) => {
-        const data = heavenReviews[shop.id];
+        const data = heavenReviews[shop.slug];
         if (!data || data.reviews.length === 0) return null;
-        const color = brandColors[shop.id] ?? '#6B7280';
-        const hUrl = heavenUrls[shop.id];
+        const color = brandColors[shop.slug] ?? '#6B7280';
+        const hUrl = heavenUrls[shop.slug];
 
         return (
           <section key={shop.id} className="mb-12">

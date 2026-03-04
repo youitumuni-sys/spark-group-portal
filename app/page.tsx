@@ -141,7 +141,7 @@ export default async function HomePage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {allShops.map((shop) => {
               const brandColor = shopBrandColors[shop.slug] ?? '#6B7280';
-              const rv = heavenReviews[shop.id];
+              const rv = heavenReviews[shop.slug];
               const latestReview = rv?.reviews[0];
               return (
                 <Link key={shop.id} href={`/shops/${shop.slug}`}>

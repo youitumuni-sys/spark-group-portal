@@ -1,5 +1,5 @@
 {
-  "clshop001": {
+  "ohoku-umeda": {
     "reviews": {
       "totalCount": 1291,
       "reviews": [
@@ -41,7 +41,7 @@
     },
     "diaries": []
   },
-  "clshop002": {
+  "ohoku-namba": {
     "reviews": {
       "totalCount": 426,
       "reviews": [
@@ -83,7 +83,7 @@
     },
     "diaries": []
   },
-  "clshop003": {
+  "pururun-umeda": {
     "reviews": {
       "totalCount": 1025,
       "reviews": [
@@ -125,7 +125,7 @@
     },
     "diaries": []
   },
-  "clshop004": {
+  "pururun-kyobashi": {
     "reviews": {
       "totalCount": 935,
       "reviews": [
@@ -167,7 +167,7 @@
     },
     "diaries": []
   },
-  "clshop005": {
+  "spark-umeda": {
     "reviews": {
       "totalCount": 1192,
       "reviews": [
@@ -209,7 +209,7 @@
     },
     "diaries": []
   },
-  "clshop006": {
+  "spark-nihonbashi": {
     "reviews": {
       "totalCount": 1529,
       "reviews": [
@@ -251,7 +251,7 @@
     },
     "diaries": []
   },
-  "clshop007": {
+  "pururun-madam-namba": {
     "reviews": {
       "totalCount": 477,
       "reviews": [
@@ -293,7 +293,7 @@
     },
     "diaries": []
   },
-  "clshop008": {
+  "pururun-madam-juso": {
     "reviews": {
       "totalCount": 0,
       "reviews": []
@@ -304,7 +304,7 @@
     },
     "diaries": []
   },
-  "clshop009": {
+  "ohoku-nihonbashi": {
     "reviews": {
       "totalCount": 67,
       "reviews": [
