@@ -34,7 +34,7 @@ export function FavoriteButton({
     startTransition(async () => {
       const method = isFavorited ? 'DELETE' : 'POST';
 
-      const res = await fetch('/api/favorites', {
+      const res = await fetch('/spark-group-portal/api/favorites', {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ staffId }),

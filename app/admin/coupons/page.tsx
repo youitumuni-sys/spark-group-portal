@@ -33,7 +33,7 @@ export default function AdminCouponsPage() {
 
   function loadCoupons() {
     setLoading(true);
-    fetch('/api/admin/coupons')
+    fetch('/spark-group-portal/api/admin/coupons')
       .then((r) => r.json())
       .then((data) => { setCoupons(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -44,7 +44,7 @@ export default function AdminCouponsPage() {
   async function handleDelete(id: string, code: string) {
     if (!confirm(`クーポン「${code}」を削除しますか？`)) return;
     try {
-      const res = await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/spark-group-portal/api/admin/coupons/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       showToast('success', '削除しました');
       loadCoupons();

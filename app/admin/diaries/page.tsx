@@ -21,7 +21,7 @@ export default function AdminDiariesPage() {
 
   function loadDiaries() {
     setLoading(true);
-    fetch('/api/admin/diaries')
+    fetch('/spark-group-portal/api/admin/diaries')
       .then((r) => r.json())
       .then((data) => { setDiaries(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -32,7 +32,7 @@ export default function AdminDiariesPage() {
   async function handleDelete(id: string, title: string) {
     if (!confirm(`「${title}」を削除しますか？`)) return;
     try {
-      const res = await fetch(`/api/admin/diaries/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/spark-group-portal/api/admin/diaries/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       showToast('success', '削除しました');
       loadDiaries();
@@ -43,7 +43,7 @@ export default function AdminDiariesPage() {
 
   async function togglePublished(diary: DiaryItem) {
     try {
-      await fetch(`/api/admin/diaries/${diary.id}`, {
+      await fetch(`/spark-group-portal/api/admin/diaries/${diary.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isPublished: !diary.isPublished }),

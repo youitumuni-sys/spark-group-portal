@@ -21,7 +21,7 @@ export default function AdminShopsPage() {
 
   function loadShops() {
     setLoading(true);
-    fetch('/api/admin/shops')
+    fetch('/spark-group-portal/api/admin/shops')
       .then((r) => r.json())
       .then((data) => { setShops(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -32,7 +32,7 @@ export default function AdminShopsPage() {
   async function handleDelete(id: string, name: string) {
     if (!confirm(`「${name}」を無効化しますか？`)) return;
     try {
-      const res = await fetch(`/api/admin/shops/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/spark-group-portal/api/admin/shops/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       showToast('success', '無効化しました');
       loadShops();

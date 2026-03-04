@@ -44,8 +44,8 @@ export default function EditStaffPage({ params }: { params: Promise<{ id: string
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/admin/staff/${id}`).then((r) => r.json()),
-      fetch('/api/admin/shops').then((r) => r.json()),
+      fetch(`/spark-group-portal/api/admin/staff/${id}`).then((r) => r.json()),
+      fetch('/spark-group-portal/api/admin/shops').then((r) => r.json()),
     ]).then(([staff, shopList]) => {
       setForm({
         name: staff.name ?? '',
@@ -104,7 +104,7 @@ export default function EditStaffPage({ params }: { params: Promise<{ id: string
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/staff/${id}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/staff/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -122,7 +122,7 @@ export default function EditStaffPage({ params }: { params: Promise<{ id: string
   async function handleDelete() {
     if (!confirm('このキャストを無効化しますか？')) return;
     try {
-      const res = await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/spark-group-portal/api/admin/staff/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       showToast('success', '無効化しました');
       setTimeout(() => router.push('/admin/staff'), 1000);

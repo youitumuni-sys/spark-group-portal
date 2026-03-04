@@ -26,7 +26,7 @@ export default function AdminUsersPage() {
 
   function loadUsers() {
     setLoading(true);
-    fetch('/api/admin/users')
+    fetch('/spark-group-portal/api/admin/users')
       .then((r) => r.json())
       .then((data) => { setUsers(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -36,7 +36,7 @@ export default function AdminUsersPage() {
 
   async function handleRoleChange(userId: string, role: string) {
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role }),

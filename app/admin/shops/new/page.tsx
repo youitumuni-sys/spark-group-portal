@@ -55,7 +55,7 @@ export default function NewShopPage() {
 
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/shops', {
+      const res = await fetch('/spark-group-portal/api/admin/shops', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...result.data, images: [] }),

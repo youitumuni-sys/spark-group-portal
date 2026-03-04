@@ -27,8 +27,8 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/admin/events/${id}`).then((r) => r.json()),
-      fetch('/api/admin/shops').then((r) => r.json()),
+      fetch(`/spark-group-portal/api/admin/events/${id}`).then((r) => r.json()),
+      fetch('/spark-group-portal/api/admin/shops').then((r) => r.json()),
     ]).then(([event, shopList]) => {
       setForm({
         title: event.title ?? '',
@@ -68,7 +68,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/events/${id}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/events/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -90,7 +90,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   async function handleDelete() {
     if (!confirm('このイベントを削除しますか？')) return;
     try {
-      await fetch(`/api/admin/events/${id}`, { method: 'DELETE' });
+      await fetch(`/spark-group-portal/api/admin/events/${id}`, { method: 'DELETE' });
       showToast('success', '削除しました');
       setTimeout(() => router.push('/admin/events'), 1000);
     } catch {

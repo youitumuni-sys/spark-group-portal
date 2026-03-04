@@ -27,7 +27,7 @@ export function ReviewForm({ staffId, shopId, onSuccess }: ReviewFormProps) {
     setError(null);
 
     try {
-      const res = await fetch('/api/reviews', {
+      const res = await fetch('/spark-group-portal/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ staffId, shopId, rating, comment: comment.trim() }),

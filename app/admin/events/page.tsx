@@ -29,7 +29,7 @@ export default function AdminEventsPage() {
 
   function loadEvents() {
     setLoading(true);
-    fetch('/api/admin/events')
+    fetch('/spark-group-portal/api/admin/events')
       .then((r) => r.json())
       .then((data) => { setEvents(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -40,7 +40,7 @@ export default function AdminEventsPage() {
   async function handleDelete(id: string, title: string) {
     if (!confirm(`「${title}」を削除しますか？`)) return;
     try {
-      const res = await fetch(`/api/admin/events/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/spark-group-portal/api/admin/events/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       showToast('success', '削除しました');
       loadEvents();

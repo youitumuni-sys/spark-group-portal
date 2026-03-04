@@ -34,7 +34,7 @@ export default function EditShopPage({ params }: { params: Promise<{ id: string 
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    fetch(`/api/admin/shops/${id}`)
+    fetch(`/spark-group-portal/api/admin/shops/${id}`)
       .then((r) => r.json())
       .then((data) => {
         setForm({
@@ -78,7 +78,7 @@ export default function EditShopPage({ params }: { params: Promise<{ id: string 
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/shops/${id}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/shops/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result.data),
@@ -96,7 +96,7 @@ export default function EditShopPage({ params }: { params: Promise<{ id: string 
   async function handleDelete() {
     if (!confirm('この店舗を無効化しますか？')) return;
     try {
-      const res = await fetch(`/api/admin/shops/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/spark-group-portal/api/admin/shops/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       showToast('success', '無効化しました');
       setTimeout(() => router.push('/admin/shops'), 1000);

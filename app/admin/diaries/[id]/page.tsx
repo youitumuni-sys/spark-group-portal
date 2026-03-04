@@ -16,7 +16,7 @@ export default function EditDiaryPage({ params }: { params: Promise<{ id: string
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    fetch(`/api/admin/diaries/${id}`)
+    fetch(`/spark-group-portal/api/admin/diaries/${id}`)
       .then((r) => r.json())
       .then((data) => {
         setForm({ title: data.title ?? '', content: data.content ?? '', isPublished: data.isPublished ?? true });
@@ -40,7 +40,7 @@ export default function EditDiaryPage({ params }: { params: Promise<{ id: string
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/diaries/${id}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/diaries/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -58,7 +58,7 @@ export default function EditDiaryPage({ params }: { params: Promise<{ id: string
   async function handleDelete() {
     if (!confirm('この日記を削除しますか？')) return;
     try {
-      await fetch(`/api/admin/diaries/${id}`, { method: 'DELETE' });
+      await fetch(`/spark-group-portal/api/admin/diaries/${id}`, { method: 'DELETE' });
       showToast('success', '削除しました');
       setTimeout(() => router.push('/admin/diaries'), 1000);
     } catch {

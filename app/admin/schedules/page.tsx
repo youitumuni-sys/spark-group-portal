@@ -47,7 +47,7 @@ export default function AdminSchedulesPage() {
   }
 
   useEffect(() => {
-    fetch('/api/admin/staff').then((r) => r.json()).then(setStaffList).catch(() => {});
+    fetch('/spark-group-portal/api/admin/staff').then((r) => r.json()).then(setStaffList).catch(() => {});
     loadSchedules(dateFilter);
   }, [dateFilter]);
 
@@ -59,7 +59,7 @@ export default function AdminSchedulesPage() {
     }
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/schedules', {
+      const res = await fetch('/spark-group-portal/api/admin/schedules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, date: new Date(form.date).toISOString() }),
@@ -79,7 +79,7 @@ export default function AdminSchedulesPage() {
   async function handleDelete(id: string) {
     if (!confirm('このスケジュールを削除しますか？')) return;
     try {
-      await fetch(`/api/admin/schedules/${id}`, { method: 'DELETE' });
+      await fetch(`/spark-group-portal/api/admin/schedules/${id}`, { method: 'DELETE' });
       showToast('success', '削除しました');
       loadSchedules(dateFilter);
     } catch {
@@ -89,7 +89,7 @@ export default function AdminSchedulesPage() {
 
   async function toggleConfirmed(schedule: Schedule) {
     try {
-      await fetch(`/api/admin/schedules/${schedule.id}`, {
+      await fetch(`/spark-group-portal/api/admin/schedules/${schedule.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isConfirmed: !schedule.isConfirmed }),

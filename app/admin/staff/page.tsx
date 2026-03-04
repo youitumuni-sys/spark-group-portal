@@ -27,8 +27,8 @@ export default function AdminStaffPage() {
   function loadStaff() {
     setLoading(true);
     Promise.all([
-      fetch('/api/admin/staff').then((r) => r.json()),
-      fetch('/api/admin/shops').then((r) => r.json()),
+      fetch('/spark-group-portal/api/admin/staff').then((r) => r.json()),
+      fetch('/spark-group-portal/api/admin/shops').then((r) => r.json()),
     ]).then(([staffData, shopData]) => {
       setStaffList(Array.isArray(staffData) ? staffData : []);
       setShops(Array.isArray(shopData) ? shopData.map((s: Shop) => ({ id: s.id, name: s.name })).sort((a: Shop, b: Shop) => a.name.localeCompare(b.name)) : []);
@@ -41,7 +41,7 @@ export default function AdminStaffPage() {
   async function handleDelete(id: string, name: string) {
     if (!confirm(`「${name}」を無効化しますか？`)) return;
     try {
-      const res = await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/spark-group-portal/api/admin/staff/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       showToast('success', '無効化しました');
       loadStaff();

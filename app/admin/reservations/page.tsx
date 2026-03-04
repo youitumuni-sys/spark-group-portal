@@ -46,7 +46,7 @@ export default function AdminReservationsPage() {
 
   async function updateStatus(id: string, status: string) {
     try {
-      const res = await fetch(`/api/admin/reservations/${id}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/reservations/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),

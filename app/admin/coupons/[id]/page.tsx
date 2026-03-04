@@ -30,8 +30,8 @@ export default function EditCouponPage({ params }: { params: Promise<{ id: strin
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/admin/coupons/${id}`).then((r) => r.json()),
-      fetch('/api/admin/shops').then((r) => r.json()),
+      fetch(`/spark-group-portal/api/admin/coupons/${id}`).then((r) => r.json()),
+      fetch('/spark-group-portal/api/admin/shops').then((r) => r.json()),
     ]).then(([coupon, shopList]) => {
       setForm({
         code: coupon.code ?? '',
@@ -87,7 +87,7 @@ export default function EditCouponPage({ params }: { params: Promise<{ id: strin
         endDate: new Date(form.endDate).toISOString(),
         isActive: form.isActive,
       };
-      const res = await fetch(`/api/admin/coupons/${id}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/coupons/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -105,7 +105,7 @@ export default function EditCouponPage({ params }: { params: Promise<{ id: strin
   async function handleDelete() {
     if (!confirm('このクーポンを削除しますか？')) return;
     try {
-      await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' });
+      await fetch(`/spark-group-portal/api/admin/coupons/${id}`, { method: 'DELETE' });
       showToast('success', '削除しました');
       setTimeout(() => router.push('/admin/coupons'), 1000);
     } catch {

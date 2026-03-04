@@ -27,7 +27,7 @@ export default function NewCouponPage() {
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/shops').then((r) => r.json()).then(setShops).catch(() => {});
+    fetch('/spark-group-portal/api/admin/shops').then((r) => r.json()).then(setShops).catch(() => {});
   }, []);
 
   function showToast(type: 'success' | 'error', message: string) {
@@ -66,7 +66,7 @@ export default function NewCouponPage() {
         endDate: new Date(form.endDate).toISOString(),
         isActive: form.isActive,
       };
-      const res = await fetch('/api/admin/coupons', {
+      const res = await fetch('/spark-group-portal/api/admin/coupons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

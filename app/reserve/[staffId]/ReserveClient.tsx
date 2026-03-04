@@ -26,7 +26,7 @@ export default function ReserveClient() {
 
   useEffect(() => {
     if (!params.staffId) return;
-    fetch(`/api/staff/${params.staffId}`)
+    fetch(`/spark-group-portal/api/staff/${params.staffId}`)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => { if (data) setStaffMember(data); })
       .catch(() => {});

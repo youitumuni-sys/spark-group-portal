@@ -25,7 +25,7 @@ export default function NewStaffPage() {
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/shops').then((r) => r.json()).then(setShops).catch(() => {});
+    fetch('/spark-group-portal/api/admin/shops').then((r) => r.json()).then(setShops).catch(() => {});
   }, []);
 
   function showToast(type: 'success' | 'error', message: string) {
@@ -65,7 +65,7 @@ export default function NewStaffPage() {
 
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/staff', {
+      const res = await fetch('/spark-group-portal/api/admin/staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

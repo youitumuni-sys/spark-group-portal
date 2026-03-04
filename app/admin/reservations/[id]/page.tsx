@@ -34,7 +34,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    fetch(`/api/admin/reservations/${id}`)
+    fetch(`/spark-group-portal/api/admin/reservations/${id}`)
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
@@ -52,7 +52,7 @@ export default function ReservationDetailPage({ params }: { params: Promise<{ id
     if (!reservation) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/reservations/${id}`, {
+      const res = await fetch(`/spark-group-portal/api/admin/reservations/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
