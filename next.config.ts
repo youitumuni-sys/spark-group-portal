@@ -8,12 +8,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: '**.oh-oku.jp' },
-      { protocol: 'https', hostname: '**.pururun-komachi.com' },
-      { protocol: 'https', hostname: '**.spark-spark.com' },
-      { protocol: 'https', hostname: '**.cityheaven.net' },
-    ],
+    unoptimized: true,
   },
   basePath: '/spark-group-portal',
 };
