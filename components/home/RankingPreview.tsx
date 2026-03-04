@@ -1,82 +1,125 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import type { Staff } from '@/types';
+import { Crown } from 'lucide-react';
 
-type TabKey = 'monthly' | 'newcomer';
+type BrandKey = 'ohoku' | 'pururun' | 'spark';
 
-interface RankingPreviewProps {
-  monthlyRanking: Staff[];
-  newcomerRanking: Staff[];
+interface RankEntry {
+  rank: number;
+  name: string;
+  image: string;
 }
 
-const rankStyles: Record<number, { bg: string; text: string; border: string }> = {
-  1: { bg: 'bg-amber-50', text: 'text-amber-500', border: 'border-amber-200' },
-  2: { bg: 'bg-gray-50', text: 'text-gray-400', border: 'border-gray-200' },
-  3: { bg: 'bg-orange-50', text: 'text-orange-400', border: 'border-orange-200' },
+interface RankingPreviewProps {
+  monthlyRanking?: any[];
+  newcomerRanking?: any[];
+  brandRankings?: Record<BrandKey, RankEntry[]>;
+}
+
+const brands: { key: BrandKey; label: string; color: string; accent: string }[] = [
+  { key: 'ohoku', label: '大奥', color: '#8B1A2B', accent: 'from-rose-500 to-red-700' },
+  { key: 'pururun', label: 'ぷるるん小町', color: '#E85B93', accent: 'from-pink-400 to-rose-500' },
+  { key: 'spark', label: 'スパーク', color: '#7C4DFF', accent: 'from-violet-500 to-purple-600' },
+];
+
+const medalColors: Record<number, string> = {
+  1: '#FFD700',
+  2: '#C0C0C0',
+  3: '#CD7F32',
 };
 
-export function RankingPreview({ monthlyRanking, newcomerRanking }: RankingPreviewProps) {
-  const [tab, setTab] = useState<TabKey>('monthly');
-  const ranking = tab === 'monthly' ? monthlyRanking : newcomerRanking;
+const rankBadge = (rank: number) => {
+  const color = medalColors[rank];
+  if (color) return { color, text: 'text-white', isMedal: true };
+  return { color: '#F3F4F6', text: 'text-gray-500', isMedal: false };
+};
+
+export function RankingPreview({ brandRankings }: RankingPreviewProps) {
+  const [activeTab, setActiveTab] = useState<BrandKey>('ohoku');
+
+  if (!brandRankings) return null;
+
+  const activeBrand = brands.find((b) => b.key === activeTab)!;
+  const ranking = brandRankings[activeTab] || [];
 
   return (
     <div>
+      {/* ブランドタブ */}
       <div className="flex gap-1 mb-6">
-        {([['monthly', '月間'], ['newcomer', '新人']] as const).map(([key, label]) => (
+        {brands.map((brand) => (
           <button
-            key={key}
-            onClick={() => setTab(key)}
+            key={brand.key}
+            onClick={() => setActiveTab(brand.key)}
             className={`px-5 py-2 rounded-full text-[13px] font-medium transition-all duration-200 ${
-              tab === key
-                ? 'bg-gray-900 text-white shadow-sm'
+              activeTab === brand.key
+                ? 'text-white shadow-sm'
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
             }`}
+            style={activeTab === brand.key ? { backgroundColor: brand.color } : {}}
           >
-            {label}
+            {brand.label}
           </button>
         ))}
       </div>
 
-      <div className="space-y-2">
-        {ranking.slice(0, 5).map((staff, i) => {
-          const rank = i + 1;
-          const style = rankStyles[rank];
+      {/* Top 3 — 大きめカード */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        {ranking.slice(0, 3).map((entry) => {
+          const badge = rankBadge(entry.rank);
           return (
-            <Link key={staff.id} href={`/girls/${staff.id}`}>
-              <div className={`flex items-center gap-4 rounded-xl p-4 transition-all duration-200 hover:shadow-sm ${style ? style.bg : 'bg-white'} ${rank <= 3 ? `border ${style?.border}` : 'border border-gray-50 hover:border-gray-100'}`}>
-                {/* 順位 */}
-                <div className={`w-8 text-center flex-shrink-0 ${style ? '' : ''}`}>
-                  <span className={`text-xl font-bold tabular-nums ${style ? style.text : 'text-gray-300'}`}>
-                    {rank}
-                  </span>
-                </div>
-
-                {/* アバター */}
-                <div className={`h-12 w-12 rounded-full overflow-hidden flex-shrink-0 ${rank <= 3 ? `ring-2 ${style?.border?.replace('border', 'ring')}` : 'ring-1 ring-gray-100'}`}>
-                  {staff.images[0] ? (
-                    <img src={staff.images[0]} alt={staff.name} className="w-full h-full object-cover" />
+            <div
+              key={entry.rank}
+              className="relative rounded-2xl overflow-hidden bg-white border border-gray-100 transition-all hover:shadow-lg"
+            >
+              {/* 画像 */}
+              <div className="aspect-[3/4] relative">
+                <img
+                  src={entry.image}
+                  alt={entry.name}
+                  className="w-full h-full object-cover"
+                />
+                {/* ランクバッジ（メダルカラー） */}
+                <div
+                  className="absolute top-2 left-2 w-8 h-8 rounded-full shadow-lg flex items-center justify-center"
+                  style={{ backgroundColor: badge.color }}
+                >
+                  {entry.rank === 1 ? (
+                    <Crown className="w-4 h-4 text-white" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-pink-50 to-violet-50 flex items-center justify-center text-pink-400 text-sm font-medium">
-                      {staff.name.charAt(0)}
-                    </div>
+                    <span className="text-xs font-bold text-white">{entry.rank}</span>
                   )}
                 </div>
-
-                {/* 情報 */}
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[14px] text-gray-900 truncate">{staff.name}</p>
-                  {staff.shop && (
-                    <p className="text-[11px] text-gray-400 truncate mt-0.5">{staff.shop.name}</p>
-                  )}
-                </div>
-
-                {staff.isNew && (
-                  <span className="px-2 py-0.5 text-[10px] font-bold text-pink-500 bg-pink-50 rounded-md">NEW</span>
-                )}
               </div>
-            </Link>
+              {/* 名前 */}
+              <div className="p-2.5 text-center">
+                <p className="text-sm font-bold text-gray-900">{entry.name}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 4位以降 — リスト（番号表示） */}
+      <div className="space-y-2">
+        {ranking.slice(3).map((entry) => {
+          const badge = rankBadge(entry.rank);
+          return (
+            <div
+              key={entry.rank}
+              className="flex items-center gap-3 rounded-xl p-3 bg-white border border-gray-50 hover:border-gray-100 transition-all"
+            >
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: badge.color }}
+              >
+                <span className={`text-xs font-bold ${badge.text}`}>{entry.rank}</span>
+              </div>
+              <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-gray-100">
+                <img src={entry.image} alt={entry.name} className="w-full h-full object-cover" />
+              </div>
+              <p className="font-semibold text-[14px] text-gray-900">{entry.name}</p>
+            </div>
           );
         })}
       </div>

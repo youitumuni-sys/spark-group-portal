@@ -13,7 +13,7 @@ const rankingTypes = [
   {
     id: 'new',
     title: '新人ランキング',
-    description: '登録30日以内のスタッフによるランキング',
+    description: '登録30日以内のキャストによるランキング',
     weights: { reviews: 50, rating: 30, access: 20 },
   },
   {

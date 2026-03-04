@@ -4,7 +4,19 @@ import Link from 'next/link';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Rating } from '@/components/ui/Rating';
-import type { RankedStaff } from '@/app/api/rankings/route';
+interface RankedStaff {
+  id: string;
+  name: string;
+  image: string;
+  shopName: string;
+  shopArea: string;
+  isNew: boolean;
+  avgRating: number;
+  favoriteCount: number;
+  reviewCount: number;
+  diaryLikeCount: number;
+  score: number;
+}
 
 interface RankingTableProps {
   items: RankedStaff[];
@@ -124,7 +136,7 @@ export function RankingTable({ items, scoreLabel }: RankingTableProps) {
         <div className="mt-6">
           <div className="mb-2 flex items-center px-4 text-xs text-gray-500">
             <span className="w-8 text-center">#</span>
-            <span className="ml-12 flex-1">スタッフ</span>
+            <span className="ml-12 flex-1">キャスト</span>
             <span>評価</span>
             <span className="w-10 text-right">♥</span>
             <span className="w-16 text-right">{scoreLabel}</span>

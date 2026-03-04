@@ -1,4 +1,12 @@
-import { prisma } from '@/lib/db';
+export const dynamic = 'force-dynamic';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { getUserFavorites } from '@/lib/queries/favorites';
+import { getUserReservations } from '@/lib/queries/reservations';
+import { getReviews } from '@/lib/queries/reviews';
+import { getUserPointHistory, getUserPoints } from '@/lib/queries/points';
+import { getActiveCoupons } from '@/lib/queries/coupons';
+import { getUserById } from '@/lib/queries/users';
 import Link from 'next/link';
 import { Heart, Calendar, ChevronRight, Star, Crown, Gem, Flame, Sparkles, Shield, Clock, MessageSquare, TrendingUp } from 'lucide-react';
 import { AiMatch } from '@/components/home/AiMatch';
@@ -14,7 +22,7 @@ interface Title {
   bg: string;
   border: string;
   gradient: string;
-  cardGradient: string; // 会員カード用
+  cardGradient: string;
   icon: typeof Crown;
   minPoints: number;
 }
@@ -52,7 +60,6 @@ function getProgress(points: number): number {
   return Math.min(100, Math.round((progress / range) * 100));
 }
 
-// 時間帯による挨拶
 function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 6) return 'こんばんは';
@@ -61,10 +68,9 @@ function getGreeting(): string {
   return 'こんばんは';
 }
 
-// お好みタイプ分析
-function getTypeAnalysis(favoriteShops: string[]): { label: string; description: string } {
+function getTypeAnalysis(favoriteShopSlugs: string[]): { label: string; description: string } {
   const brandCounts: Record<string, number> = {};
-  for (const slug of favoriteShops) {
+  for (const slug of favoriteShopSlugs) {
     if (slug.startsWith('ohoku')) brandCounts['大奥'] = (brandCounts['大奥'] || 0) + 1;
     else if (slug.startsWith('pururun')) brandCounts['ぷるるん'] = (brandCounts['ぷるるん'] || 0) + 1;
     else if (slug.startsWith('spark')) brandCounts['スパーク'] = (brandCounts['スパーク'] || 0) + 1;
@@ -76,7 +82,6 @@ function getTypeAnalysis(favoriteShops: string[]): { label: string; description:
   return { label: 'フレッシュ志向タイプ', description: '新鮮な出会いを求めるあなた。スパークの未経験キャストに注目！' };
 }
 
-// 利用実績バッジ
 function getAchievements(stats: { reviews: number; favorites: number; visits: number }) {
   return [
     { id: 'first-review',  name: 'はじめてのレビュー',   emoji: '✏️', unlocked: stats.reviews >= 1 },
@@ -93,82 +98,52 @@ function getAchievements(stats: { reviews: number; favorites: number; visits: nu
 }
 
 export default async function MypagePage() {
-  const user = await prisma.user.findFirst({
-    where: { role: 'USER' },
-    select: {
-      id: true,
-      email: true,
-      nickname: true,
-      image: true,
-      points: true,
-      createdAt: true,
-    },
-  });
+  const session = await auth();
+  if (!session?.user) redirect('/auth/signin');
+  const userId = session.user.id;
 
-  if (!user) {
-    return <p className="text-gray-400 text-center py-20">ユーザーが見つかりません</p>;
-  }
-
-  const [favorites, reservations, reviews, reviewCount, favoriteCount, visitCount, pointHistory, matchCandidates] = await Promise.all([
-    prisma.favorite.findMany({
-      where: { userId: user.id },
-      include: { staff: { include: { shop: true } } },
-      orderBy: { createdAt: 'desc' },
-      take: 4,
-    }),
-    prisma.reservation.findMany({
-      where: { userId: user.id },
-      include: { staff: true, shop: true },
-      orderBy: { dateTime: 'desc' },
-      take: 5,
-    }),
-    prisma.review.findMany({
-      where: { userId: user.id },
-      include: { staff: true, shop: true },
-      orderBy: { createdAt: 'desc' },
-      take: 3,
-    }),
-    prisma.review.count({ where: { userId: user.id } }),
-    prisma.favorite.count({ where: { userId: user.id } }),
-    prisma.reservation.count({ where: { userId: user.id, status: 'COMPLETED' } }),
-    prisma.pointHistory.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    }),
-    // AIマッチ用キャスト
-    prisma.staff.findMany({
-      where: { isActive: true },
-      take: 10,
-      include: { shop: true },
-      orderBy: { createdAt: 'asc' },
-    }),
+  const [userData, favorites, reservations, userReviews, pointHistory, activeCoupons, totalPoints] = await Promise.all([
+    getUserById(userId),
+    getUserFavorites(userId),
+    getUserReservations(userId),
+    getReviews(20),
+    getUserPointHistory(userId),
+    getActiveCoupons(),
+    getUserPoints(userId),
   ]);
 
-  const demoStaff = favorites.length === 0
-    ? await prisma.staff.findMany({
-        where: { isActive: true },
-        include: { shop: true },
-        take: 4,
-        orderBy: { createdAt: 'desc' },
-      })
-    : [];
+  // Filter reviews for this user
+  const reviews = userReviews.filter((r) => r.userId === userId);
 
-  const title = getTitle(user.points);
-  const nextTitle = getNextTitle(user.points);
-  const progress = getProgress(user.points);
+  const user = userData ?? {
+    id: userId,
+    nickname: session.user.name ?? null,
+    email: session.user.email ?? '',
+    points: totalPoints,
+    createdAt: new Date(),
+    role: 'USER',
+    _count: { reviews: 0, reservations: 0, favorites: 0 },
+  };
+
+  const reviewCount = user._count?.reviews ?? reviews.length;
+  const favoriteCount = user._count?.favorites ?? favorites.length;
+  const visitCount = user._count?.reservations ?? reservations.filter((r) => r.status === 'COMPLETED').length;
+
+  const title = getTitle(totalPoints);
+  const nextTitle = getNextTitle(totalPoints);
+  const progress = getProgress(totalPoints);
   const TitleIcon = title.icon;
 
   const stats = { reviews: reviewCount, favorites: favoriteCount, visits: visitCount };
   const achievements = getAchievements(stats);
   const unlockedCount = achievements.filter(a => a.unlocked).length;
-  const memberSince = user.createdAt.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+  const memberSince = new Date(user.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const greeting = getGreeting();
   const favoriteShopSlugs = favorites.map(f => f.staff.shop.slug);
   const typeAnalysis = getTypeAnalysis(favoriteShopSlugs);
 
-  const displayStaff = favorites.length > 0 ? favorites.map(f => f.staff) : demoStaff;
+  const displayStaff = favorites.map(f => f.staff);
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -183,7 +158,6 @@ export default async function MypagePage() {
       {/* 会員カード（プレミアム感） */}
       <section className="relative">
         <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${title.cardGradient} p-6 text-white shadow-lg`}>
-          {/* カード背景パターン */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-4 right-4 w-32 h-32 rounded-full border border-white/30" />
             <div className="absolute top-8 right-8 w-24 h-24 rounded-full border border-white/20" />
@@ -191,7 +165,6 @@ export default async function MypagePage() {
           </div>
 
           <div className="relative z-10">
-            {/* カード上部：ロゴ + 称号 */}
             <div className="flex items-start justify-between mb-8">
               <div>
                 <p className="text-[10px] font-medium tracking-[0.3em] uppercase opacity-70">SPARK GROUP</p>
@@ -203,16 +176,14 @@ export default async function MypagePage() {
               </div>
             </div>
 
-            {/* ポイント表示（大きく） */}
             <div className="mb-6">
               <p className="text-[10px] tracking-[0.2em] uppercase opacity-60">TOTAL POINTS</p>
               <p className="text-3xl font-bold tracking-wide mt-1">
-                {user.points.toLocaleString()}
+                {totalPoints.toLocaleString()}
                 <span className="text-sm font-normal opacity-60 ml-1">pt</span>
               </p>
             </div>
 
-            {/* 次の称号プログレス */}
             {nextTitle && (
               <div className="mb-5">
                 <div className="flex items-center justify-between mb-1.5">
@@ -220,7 +191,7 @@ export default async function MypagePage() {
                     次: {nextTitle.name}
                   </span>
                   <span className="text-[10px] opacity-60">
-                    あと {(nextTitle.minPoints - user.points).toLocaleString()} pt
+                    あと {(nextTitle.minPoints - totalPoints).toLocaleString()} pt
                   </span>
                 </div>
                 <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
@@ -232,14 +203,13 @@ export default async function MypagePage() {
               </div>
             )}
 
-            {/* カード下部：名前 + 登録日 */}
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-lg font-bold tracking-wider">
                   {(user.nickname || 'GUEST').toUpperCase()}
                 </p>
                 <p className="text-[10px] opacity-50 mt-0.5">
-                  MEMBER SINCE {user.createdAt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}
+                  MEMBER SINCE {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}
                 </p>
               </div>
               <div className="text-right">
@@ -302,7 +272,6 @@ export default async function MypagePage() {
             {unlockedCount} / {achievements.length}
           </span>
         </div>
-        {/* アンロック済みバッジを横スクロール表示 */}
         <div className="flex gap-2 flex-wrap">
           {achievements.map((ach) => (
             <div
@@ -323,13 +292,13 @@ export default async function MypagePage() {
         </div>
       </section>
 
-      {/* お気に入りスタッフ（ビジュアル重視） */}
+      {/* お気に入りキャスト（ビジュアル重視） */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 text-pink-500" />
             <p className="text-[13px] font-bold text-gray-900">
-              {favorites.length > 0 ? 'お気に入りスタッフ' : 'おすすめスタッフ'}
+              {favorites.length > 0 ? 'お気に入りキャスト' : 'おすすめキャスト'}
             </p>
           </div>
           <Link
@@ -341,10 +310,10 @@ export default async function MypagePage() {
           </Link>
         </div>
         {displayStaff.length === 0 ? (
-          <p className="text-gray-400 text-[13px]">お気に入りのスタッフはまだいません</p>
+          <p className="text-gray-400 text-[13px]">お気に入りのキャストはまだいません</p>
         ) : (
           <div className="grid grid-cols-2 gap-3">
-            {displayStaff.map((staff, i) => {
+            {displayStaff.slice(0, 4).map((staff, i) => {
               const staffImages = staff.images as string[];
               return (
                 <Link
@@ -365,7 +334,6 @@ export default async function MypagePage() {
                       No Image
                     </div>
                   )}
-                  {/* オーバーレイ */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-3">
                     <p className="font-bold text-white text-sm drop-shadow-sm">{staff.name}</p>
@@ -392,7 +360,6 @@ export default async function MypagePage() {
           <p className="text-[13px] font-bold text-gray-900">最近のアクティビティ</p>
         </div>
         <div className="space-y-0">
-          {/* 予約、レビュー、ポイント履歴を時系列でミックス */}
           {(() => {
             type ActivityItem = {
               type: 'reservation' | 'review' | 'point';
@@ -415,8 +382,8 @@ export default async function MypagePage() {
               activities.push({
                 type: 'reservation',
                 date: new Date(res.dateTime),
-                title: `${res.staff.name}さんを予約`,
-                subtitle: `${res.shop.name} / ${res.duration}分 / ${statusLabels[res.status] || res.status}`,
+                title: `${res.staff?.name ?? '-'}さんを予約`,
+                subtitle: `${res.shop?.name ?? '-'} / ${res.duration}分 / ${statusLabels[res.status] || res.status}`,
                 icon: 'calendar',
                 color: 'text-cyan-500 bg-cyan-50',
               });
@@ -426,7 +393,7 @@ export default async function MypagePage() {
               activities.push({
                 type: 'review',
                 date: new Date(rev.createdAt),
-                title: `${rev.staff.name}さんにレビュー`,
+                title: `${rev.staff?.name ?? '-'}さんにレビュー`,
                 subtitle: `${'★'.repeat(rev.rating)}${'☆'.repeat(5 - rev.rating)} ${rev.comment.slice(0, 30)}...`,
                 icon: 'star',
                 color: 'text-orange-500 bg-orange-50',
@@ -488,7 +455,7 @@ export default async function MypagePage() {
         <p className="text-[12px] text-gray-400 mb-4 -mt-2">
           スワイプで好みを学習。3ブランドからあなた好みのキャストをAIがレコメンド
         </p>
-        <AiMatch staffList={matchCandidates as never[]} />
+        <AiMatch staffList={displayStaff as never[]} />
       </section>
 
       {/* スタンプラリー */}
@@ -498,7 +465,7 @@ export default async function MypagePage() {
 
       {/* キャスト投票トーナメント */}
       <section>
-        <VoteTournament staffList={matchCandidates as never[]} />
+        <VoteTournament staffList={displayStaff as never[]} />
       </section>
 
       {/* 出勤通知設定 */}
@@ -521,7 +488,52 @@ export default async function MypagePage() {
             <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <CouponBanner />
+        {activeCoupons.length === 0 ? (
+          <p className="text-gray-400 text-[13px]">現在有効なクーポンはありません</p>
+        ) : (
+          <div className="space-y-3">
+            {activeCoupons.map((coupon) => {
+              const daysLeft = Math.ceil((new Date(coupon.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+              return (
+                <div
+                  key={coupon.id}
+                  className="relative bg-white rounded-xl border border-dashed border-violet-200 p-4 overflow-hidden"
+                >
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-6 bg-gray-50 rounded-r-full" />
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-6 bg-gray-50 rounded-l-full" />
+                  <div className="pl-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[13px] font-bold text-gray-900">{coupon.title}</p>
+                        <p className="text-[11px] text-gray-400 mt-0.5">
+                          {coupon.shop?.name || '全店舗対象'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-violet-600">
+                          {coupon.discountType === 'PERCENTAGE'
+                            ? `${coupon.discountValue}%OFF`
+                            : `¥${coupon.discountValue.toLocaleString()}`}
+                        </p>
+                        {daysLeft <= 7 && (
+                          <p className="text-[10px] text-red-500 font-medium mt-0.5">
+                            残り{daysLeft}日
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-gray-50 flex items-center justify-between">
+                      <p className="text-[10px] text-gray-300 font-mono tracking-wider">{coupon.code}</p>
+                      <p className="text-[10px] text-gray-300">
+                        〜{new Date(coupon.endDate).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* 会員情報 */}
@@ -530,70 +542,6 @@ export default async function MypagePage() {
         <p className="text-[13px] font-mono text-gray-500 mt-0.5 tracking-wider">{user.id.slice(-12).toUpperCase()}</p>
         <p className="text-[11px] text-gray-300 mt-2">{memberSince}から利用</p>
       </section>
-    </div>
-  );
-}
-
-// クーポンバナー（有効なクーポンを表示）
-async function CouponBanner() {
-  const activeCoupons = await prisma.coupon.findMany({
-    where: {
-      isActive: true,
-      endDate: { gte: new Date() },
-      startDate: { lte: new Date() },
-    },
-    include: { shop: true },
-    take: 2,
-    orderBy: { endDate: 'asc' },
-  });
-
-  if (activeCoupons.length === 0) {
-    return <p className="text-gray-400 text-[13px]">現在有効なクーポンはありません</p>;
-  }
-
-  return (
-    <div className="space-y-3">
-      {activeCoupons.map((coupon) => {
-        const daysLeft = Math.ceil((coupon.endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-        return (
-          <div
-            key={coupon.id}
-            className="relative bg-white rounded-xl border border-dashed border-violet-200 p-4 overflow-hidden"
-          >
-            {/* クーポン左側の切り込み風デザイン */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-6 bg-gray-50 rounded-r-full" />
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-6 bg-gray-50 rounded-l-full" />
-            <div className="pl-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[13px] font-bold text-gray-900">{coupon.title}</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">
-                    {coupon.shop?.name || '全店舗対象'}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-violet-600">
-                    {coupon.discountType === 'PERCENTAGE'
-                      ? `${coupon.discountValue}%OFF`
-                      : `¥${coupon.discountValue.toLocaleString()}`}
-                  </p>
-                  {daysLeft <= 7 && (
-                    <p className="text-[10px] text-red-500 font-medium mt-0.5">
-                      残り{daysLeft}日
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-2 pt-2 border-t border-gray-50 flex items-center justify-between">
-                <p className="text-[10px] text-gray-300 font-mono tracking-wider">{coupon.code}</p>
-                <p className="text-[10px] text-gray-300">
-                  〜{coupon.endDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}
-                </p>
-              </div>
-            </div>
-          </div>
-        );
-      })}
     </div>
   );
 }

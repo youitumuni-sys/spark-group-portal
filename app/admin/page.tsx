@@ -1,36 +1,32 @@
-import { prisma } from '@/lib/db';
+export const dynamic = 'force-dynamic';
+import { getShops } from '@/lib/queries/shops';
+import { getStaffList } from '@/lib/queries/staff';
+import { getAllUsers } from '@/lib/queries/users';
+import { getAllReservations, getPendingReservations } from '@/lib/queries/reservations';
+import { getReviews } from '@/lib/queries/reviews';
 import { Store, Users, UserCircle, Clock } from 'lucide-react';
 
 export default async function AdminDashboardPage() {
-  const [shopCount, staffCount, userCount, pendingCount, latestReviews, latestReservations] =
-    await Promise.all([
-      prisma.shop.count(),
-      prisma.staff.count({ where: { isActive: true } }),
-      prisma.user.count(),
-      prisma.reservation.count({ where: { status: 'PENDING' } }),
-      prisma.review.findMany({
-        include: {
-          user: { select: { nickname: true, email: true } },
-          staff: { select: { name: true } },
-          shop: { select: { name: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-      }),
-      prisma.reservation.findMany({
-        include: {
-          user: { select: { nickname: true, email: true } },
-          staff: { select: { name: true } },
-          shop: { select: { name: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-      }),
-    ]);
+  const [shops, staffList, users, pendingReservations, latestReservationsList, latestReviewsList] = await Promise.all([
+    getShops(),
+    getStaffList(),
+    getAllUsers(),
+    getPendingReservations(),
+    getAllReservations(),
+    getReviews(5),
+  ]);
+
+  const shopCount = shops.length;
+  const staffCount = staffList.length;
+  const userCount = users.length;
+  const pendingCount = pendingReservations.length;
+
+  const latestReviews = latestReviewsList.slice(0, 5);
+  const latestReservations = latestReservationsList.slice(0, 5);
 
   const statCards = [
     { label: '店舗数', value: shopCount, icon: Store, color: 'text-blue-400 bg-blue-400/10' },
-    { label: 'スタッフ数', value: staffCount, icon: Users, color: 'text-green-400 bg-green-400/10' },
+    { label: 'キャスト数', value: staffCount, icon: Users, color: 'text-green-400 bg-green-400/10' },
     { label: '会員数', value: userCount, icon: UserCircle, color: 'text-purple-400 bg-purple-400/10' },
     { label: '保留中予約', value: pendingCount, icon: Clock, color: 'text-amber-400 bg-amber-400/10' },
   ];
@@ -92,7 +88,7 @@ export default async function AdminDashboardPage() {
                 <div key={review.id} className="px-5 py-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-white">
-                      {review.user.nickname || review.user.email}
+                      {review.user?.nickname || review.user?.email}
                     </span>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: 5 }).map((_, i) => (
@@ -106,7 +102,7 @@ export default async function AdminDashboardPage() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-400">
-                    {review.staff.name} / {review.shop.name}
+                    {review.staff?.name} / {review.shop?.name}
                   </p>
                   <p className="text-xs text-gray-500 mt-1 line-clamp-1">
                     {review.comment}
@@ -134,10 +130,10 @@ export default async function AdminDashboardPage() {
                   <div key={res.id} className="px-5 py-3 flex items-center justify-between">
                     <div>
                       <p className="text-sm text-white">
-                        {res.user.nickname || res.user.email}
+                        {res.user?.nickname || res.user?.email}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {res.staff.name} / {res.shop.name}
+                        {res.staff?.name} / {res.shop?.name}
                       </p>
                       <p className="text-xs text-gray-500">
                         {dt.toLocaleDateString('ja-JP')} {dt.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}

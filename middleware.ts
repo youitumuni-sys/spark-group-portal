@@ -1,14 +1,21 @@
 import { auth } from '@/lib/auth';
+import { NextResponse } from 'next/server';
 
 export default auth((req) => {
+  const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
-  const isProtectedRoute = req.nextUrl.pathname.startsWith('/admin');
+  const role = (req.auth?.user as any)?.role;
 
-  if (isProtectedRoute && !isLoggedIn) {
-    return Response.redirect(new URL('/auth/login', req.nextUrl));
+  if (pathname.startsWith('/admin') && role !== 'ADMIN') {
+    return NextResponse.redirect(new URL('/spark-group-portal/auth/signin', req.url));
   }
+  if ((pathname.startsWith('/mypage') || pathname.startsWith('/reserve')) && !isLoggedIn) {
+    const callbackUrl = encodeURIComponent(req.nextUrl.pathname);
+    return NextResponse.redirect(new URL(`/spark-group-portal/auth/signin?callbackUrl=${callbackUrl}`, req.url));
+  }
+  return NextResponse.next();
 });
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/admin/:path*', '/mypage/:path*', '/reserve/:path*'],
 };

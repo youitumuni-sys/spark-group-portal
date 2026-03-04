@@ -43,7 +43,7 @@ async function main() {
   }
 
   // ============================================================
-  // スタッフ — 各ブランドの実キャスト画像を使用
+  // キャスト — 各ブランドの実キャスト画像を使用
   // ============================================================
   const staff = [
     // 大奥 梅田店 (0) — 確認済み実URL
@@ -129,10 +129,10 @@ async function main() {
   // レビュー
   const reviews = [
     { comment: '初めて利用しましたが、とても丁寧な対応で大満足でした。', rating: 5 },
-    { comment: '雰囲気がとても良く、リラックスできました。スタッフの方も優しくて安心。', rating: 5 },
+    { comment: '雰囲気がとても良く、リラックスできました。キャストの方も優しくて安心。', rating: 5 },
     { comment: '清潔感があり、サービスも充実。友人にも勧めたいです。', rating: 4 },
     { comment: 'コスパが良い。次回は指名で利用したいです。', rating: 4 },
-    { comment: '期待以上の対応でした。スタッフの笑顔が印象的。', rating: 5 },
+    { comment: '期待以上の対応でした。キャストの笑顔が印象的。', rating: 5 },
     { comment: '全体的に満足。待ち時間がもう少し短いと嬉しい。', rating: 3 },
     { comment: 'とても素敵な時間を過ごせました。来月も伺います。', rating: 5 },
     { comment: '初回でしたが丁寧に説明してくれて安心できました。', rating: 4 },
@@ -164,12 +164,12 @@ async function main() {
   const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
   const scheduleSlots = ['10:00-15:00', '12:00-18:00', '14:00-20:00', '16:00-22:00', '18:00-翌0:00', '20:00-翌2:00'];
   for (let i = 0; i < createdStaff.length; i++) {
-    // 約70%のスタッフが今日出勤
+    // 約70%のキャストが今日出勤
     if (Math.random() < 0.7) {
       const slot = scheduleSlots[i % scheduleSlots.length].split('-');
       await prisma.schedule.create({ data: { staffId: createdStaff[i].id, date: today, startTime: slot[0], endTime: slot[1], isConfirmed: true } });
     }
-    // 約50%のスタッフが明日出勤
+    // 約50%のキャストが明日出勤
     if (Math.random() < 0.5) {
       const slot = scheduleSlots[(i + 2) % scheduleSlots.length].split('-');
       await prisma.schedule.create({ data: { staffId: createdStaff[i].id, date: tomorrow, startTime: slot[0], endTime: slot[1], isConfirmed: true } });
@@ -185,7 +185,7 @@ async function main() {
   // 予約履歴
   const pastDays = [3, 7, 14, 21, 30];
   const durations = [60, 90, 60, 120, 60];
-  const resStaff = [0, 16, 32, 3, 24]; // 各ブランドのスタッフ
+  const resStaff = [0, 16, 32, 3, 24]; // 各ブランドのキャスト
   for (let i = 0; i < 5; i++) {
     const dt = new Date(now.getTime() - pastDays[i] * 864e5);
     dt.setHours(14 + i, 0, 0, 0);

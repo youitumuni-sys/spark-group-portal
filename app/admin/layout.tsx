@@ -1,6 +1,6 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import Link from 'next/link';
 import {
   LayoutDashboard,
   Store,
@@ -10,16 +10,19 @@ import {
   Calendar,
   Ticket,
   Trophy,
+  Clock,
 } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'ダッシュボード', icon: LayoutDashboard },
   { href: '/admin/shops', label: '店舗管理', icon: Store },
-  { href: '/admin/staff', label: 'スタッフ管理', icon: Users },
+  { href: '/admin/staff', label: 'キャスト管理', icon: Users },
   { href: '/admin/users', label: '会員管理', icon: UserCircle },
   { href: '/admin/diaries', label: '日記管理', icon: BookOpen },
   { href: '/admin/events', label: 'イベント管理', icon: Calendar },
   { href: '/admin/coupons', label: 'クーポン管理', icon: Ticket },
+  { href: '/admin/reservations', label: '予約管理', icon: Calendar },
+  { href: '/admin/schedules', label: 'スケジュール管理', icon: Clock },
   { href: '/admin/rankings', label: 'ランキング設定', icon: Trophy },
 ];
 
@@ -29,14 +32,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
-
-  if (session.user.role !== 'ADMIN') {
-    redirect('/');
-  }
+  if (session?.user?.role !== 'ADMIN') redirect('/auth/signin');
 
   return (
     <div className="flex min-h-screen bg-gray-950">
@@ -65,7 +61,7 @@ export default async function AdminLayout({
         </nav>
         <div className="p-4 border-t border-gray-800">
           <p className="text-xs text-gray-500 truncate">
-            {session.user.name || session.user.email}
+            {session.user.email}
           </p>
         </div>
       </aside>

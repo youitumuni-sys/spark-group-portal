@@ -6,7 +6,7 @@ import { X, User, Heart, LogOut } from 'lucide-react';
 const NAV_LINKS = [
   { href: '/', label: 'ホーム' },
   { href: '/shops', label: '店舗一覧' },
-  { href: '/staff', label: 'スタッフ' },
+  { href: '/staff', label: 'キャスト' },
   { href: '/diary', label: '写メ日記' },
   { href: '/ranking', label: 'ランキング' },
   { href: '/events', label: 'イベント' },

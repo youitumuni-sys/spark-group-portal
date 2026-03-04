@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
 import { User, Heart, Calendar, Coins, Ticket } from 'lucide-react';
 
 const navItems = [
@@ -9,11 +11,14 @@ const navItems = [
   { href: '/mypage/coupons', label: 'クーポン', icon: Ticket },
 ];
 
-export default function MypageLayout({
+export default async function MypageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+  if (!session?.user) redirect('/auth/signin');
+
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
       {/* サイドナビ */}
@@ -21,7 +26,7 @@ export default function MypageLayout({
         <nav className="sticky top-16 p-4 space-y-1">
           <div className="px-3 py-4 mb-2">
             <p className="text-[11px] font-medium tracking-wider uppercase text-gray-400">マイページ</p>
-            <p className="text-lg font-bold text-gray-900 truncate">テストユーザー</p>
+            <p className="text-lg font-bold text-gray-900 truncate">{session.user.name ?? session.user.email}</p>
           </div>
           {navItems.map((item) => {
             const Icon = item.icon;

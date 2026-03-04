@@ -3,12 +3,11 @@ export const SITE_DESCRIPTION = '至高の体験を、あなたに';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 export const AREAS = [
-  '新宿', '渋谷', '池袋', '六本木', '銀座',
-  '歌舞伎町', '五反田', '吉原', '川崎', '横浜',
+  '梅田', '難波', '日本橋', '十三', '京橋',
 ] as const;
 
 export const GENRES = [
-  'ソープ', 'ヘルス', 'デリヘル', 'エステ', 'アロマ', 'メンズエステ',
+  'ヘルス',
 ] as const;
 
 export const BLOOD_TYPES = ['A', 'B', 'O', 'AB'] as const;

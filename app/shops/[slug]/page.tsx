@@ -1,8 +1,10 @@
+export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MapPin, Clock, Phone, Train, Users, CalendarDays } from 'lucide-react';
-import { prisma } from '@/lib/db';
+import { MapPin, Clock, Phone, Train, Users, CalendarDays, Star, MessageCircle, ExternalLink, Sparkles } from 'lucide-react';
+import { getShopBySlug } from '@/lib/queries/shops';
+import { getHeavenCastsByShopId, getHeavenReviewsByShopId, getHeavenUrlByShopId } from '@/lib/queries/heaven';
 import { Badge } from '@/components/ui/Badge';
 import { Rating } from '@/components/ui/Rating';
 import { formatPhone, formatDate, truncate } from '@/lib/utils';
@@ -16,6 +18,9 @@ const brandColorMap: Record<string, { primary: string; gradient: string; light: 
   'pururun-kyobashi':  { primary: '#D94F84', gradient: 'from-[#D94F84] to-[#E87AAA]', light: 'bg-[#D94F84]/10 text-[#D94F84]', ring: 'ring-[#D94F84]/20' },
   'spark-umeda':       { primary: '#7C4DFF', gradient: 'from-[#7C4DFF] to-[#9C7CFF]', light: 'bg-[#7C4DFF]/10 text-[#7C4DFF]', ring: 'ring-[#7C4DFF]/20' },
   'spark-nihonbashi':  { primary: '#6B3FE8', gradient: 'from-[#6B3FE8] to-[#8B6FFF]', light: 'bg-[#6B3FE8]/10 text-[#6B3FE8]', ring: 'ring-[#6B3FE8]/20' },
+  'pururun-madam-namba': { primary: '#C2185B', gradient: 'from-[#C2185B] to-[#E91E63]', light: 'bg-[#C2185B]/10 text-[#C2185B]', ring: 'ring-[#C2185B]/20' },
+  'pururun-madam-juso':  { primary: '#AD1457', gradient: 'from-[#AD1457] to-[#C2185B]', light: 'bg-[#AD1457]/10 text-[#AD1457]', ring: 'ring-[#AD1457]/20' },
+  'ohoku-nihonbashi':    { primary: '#7B1A2B', gradient: 'from-[#7B1A2B] to-[#8B1A2B]', light: 'bg-[#7B1A2B]/10 text-[#7B1A2B]', ring: 'ring-[#7B1A2B]/20' },
 };
 
 function getBrand(slug: string) {
@@ -28,10 +33,7 @@ interface ShopDetailPageProps {
 
 export async function generateMetadata({ params }: ShopDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const shop = await prisma.shop.findUnique({
-    where: { slug },
-    select: { name: true, description: true, area: true, genre: true },
-  });
+  const shop = await getShopBySlug(slug);
 
   if (!shop) return { title: '店舗が見つかりません | SPARK GROUP' };
 
@@ -43,38 +45,32 @@ export async function generateMetadata({ params }: ShopDetailPageProps): Promise
 
 export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const { slug } = await params;
-  const now = new Date();
 
-  const shop = await prisma.shop.findUnique({
-    where: { slug },
-    include: {
-      staff: {
-        where: { isActive: true },
-        orderBy: { createdAt: 'desc' },
-      },
-      events: {
-        where: { startDate: { gte: now }, isActive: true },
-        orderBy: { startDate: 'asc' },
-      },
-      reviews: {
-        where: { isPublished: true },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        include: {
-          user: { select: { nickname: true, image: true } },
-        },
-      },
-      _count: { select: { staff: true, reviews: true } },
+  const foundShop = await getShopBySlug(slug);
+  if (!foundShop) notFound();
+
+  // Heaven data
+  const hCasts = getHeavenCastsByShopId(foundShop.id);
+  const hReviews = getHeavenReviewsByShopId(foundShop.id);
+  const hUrl = getHeavenUrlByShopId(foundShop.id);
+
+  const newFaces = foundShop.staff.filter((s) => s.isNew);
+
+  const shop = {
+    ...foundShop,
+    _count: {
+      staff: hCasts.total > 0 ? hCasts.total : foundShop._count.staff,
+      reviews: hReviews.totalCount > 0 ? hReviews.totalCount : foundShop._count.reviews,
     },
-  });
-
-  if (!shop) notFound();
+  };
 
   const images = shop.images as string[];
   const avgRating =
-    shop.reviews.length > 0
-      ? shop.reviews.reduce((sum, r) => sum + r.rating, 0) / shop.reviews.length
-      : 0;
+    hReviews.reviews.length > 0
+      ? hReviews.reviews.reduce((sum, r) => sum + parseFloat(r.score || '0'), 0) / hReviews.reviews.length
+      : shop.reviews.length > 0
+        ? shop.reviews.reduce((sum, r) => sum + r.rating, 0) / shop.reviews.length
+        : 0;
 
   const brand = getBrand(shop.slug);
 
@@ -134,15 +130,52 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{shop.description}</p>
             </div>
 
-            {/* Staff */}
-            {shop.staff.length > 0 && (
+            {/* 在籍キャスト（上位5名） */}
+            {hCasts.casts.length > 0 && (
               <section>
                 <h2 className="mb-4 text-xl font-bold text-gray-900 flex items-center gap-2">
                   <Users className="h-5 w-5" style={{ color: brand.primary }} />
-                  在籍スタッフ ({shop.staff.length}名)
+                  在籍キャスト ({hCasts.total}名)
+                </h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+                  {hCasts.casts.slice(0, 5).map((cast, i) => (
+                    <div key={i} className={`group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ${brand.ring} transition-all hover:shadow-lg hover:-translate-y-0.5`}>
+                      <div className="relative aspect-[3/4] bg-gray-100">
+                        <img src={cast.image} alt={cast.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      </div>
+                      <div className="p-3 text-center">
+                        <p className="font-medium text-sm text-gray-900">{cast.name}{cast.age ? <span className="text-xs text-gray-400 ml-1">({cast.age})</span> : null}</p>
+                        {cast.bust && cast.waist && cast.hip && (
+                          <p className="text-[11px] text-gray-400">B{cast.bust} W{cast.waist} H{cast.hip}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {hUrl && hCasts.total > 5 && (
+                  <a
+                    href={`${hUrl}girllist/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-80"
+                    style={{ color: brand.primary }}
+                  >
+                    全キャストを見る（CityHeaven）
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </section>
+            )}
+
+            {/* ニューフェイス */}
+            {newFaces.length > 0 && (
+              <section>
+                <h2 className="mb-4 text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" style={{ color: brand.primary }} />
+                  ニューフェイス
                 </h2>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                  {shop.staff.map((s) => {
+                  {newFaces.map((s) => {
                     const staffImages = s.images as string[];
                     return (
                       <div key={s.id} className={`group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ${brand.ring} transition-all hover:shadow-lg hover:-translate-y-0.5`}>
@@ -152,13 +185,13 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
                           ) : (
                             <div className="flex h-full items-center justify-center text-gray-300 text-sm">No Photo</div>
                           )}
-                          {s.isNew && (
-                            <Badge variant="new" className="absolute top-2 right-2">NEW</Badge>
-                          )}
+                          <Badge variant="new" className="absolute top-2 right-2">NEW</Badge>
                         </div>
                         <div className="p-3">
-                          <p className="font-medium text-sm text-gray-900">{s.name}</p>
-                          {s.age && <p className="text-xs text-gray-400">{s.age}歳</p>}
+                          <p className="font-medium text-sm text-gray-900">{s.name}{s.age ? <span className="text-xs text-gray-400 ml-1">({s.age})</span> : null}</p>
+                          {s.bust && s.waist && s.hip && (
+                            <p className="text-[11px] text-gray-400">B{s.bust} W{s.waist} H{s.hip}</p>
+                          )}
                         </div>
                       </div>
                     );
@@ -195,24 +228,44 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               </section>
             )}
 
-            {/* Reviews */}
-            {shop.reviews.length > 0 && (
+            {/* 口コミ（CityHeaven） */}
+            {hReviews.totalCount > 0 && (
               <section>
-                <h2 className="mb-4 text-xl font-bold text-gray-900">口コミ ({shop._count.reviews}件)</h2>
-                <div className="space-y-4">
-                  {shop.reviews.map((review) => (
-                    <div key={review.id} className="rounded-2xl bg-white p-5 shadow-md">
+                <h2 className="mb-4 text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" style={{ color: brand.primary }} />
+                  口コミ ({hReviews.totalCount.toLocaleString()}件)
+                </h2>
+                <div className="space-y-3">
+                  {hReviews.reviews.slice(0, 5).map((review, i) => (
+                    <div key={i} className="rounded-2xl bg-white p-5 shadow-md">
                       <div className="flex items-center gap-3 mb-2">
-                        <Rating value={review.rating} size="sm" />
-                        <span className="text-sm text-gray-600">
-                          {review.user.nickname ?? '匿名'}
-                        </span>
-                        <span className="text-xs text-gray-400">{formatDate(review.createdAt)}</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-amber-400" fill="currentColor" />
+                          <span className="text-sm font-bold text-amber-500">{review.score}</span>
+                        </div>
+                        <span className="text-xs text-gray-400">{review.date}</span>
                       </div>
-                      <p className="text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                      <p className="text-sm font-bold text-gray-800 mb-1">{review.title}</p>
+                      {review.comment && (
+                        <p className="text-[13px] text-gray-500 leading-relaxed whitespace-pre-wrap line-clamp-4">
+                          {review.comment}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
+                {hUrl && (
+                  <a
+                    href={`${hUrl}reviews/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-80"
+                    style={{ color: brand.primary }}
+                  >
+                    口コミをもっと見る（CityHeaven）
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
               </section>
             )}
           </div>
@@ -249,6 +302,19 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
                     <div>
                       <dt className="sr-only">アクセス</dt>
                       <dd className="text-gray-600">{shop.access}</dd>
+                    </div>
+                  </div>
+                )}
+                {shop.website && (
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="h-4 w-4 shrink-0 text-gray-400" />
+                    <div>
+                      <dt className="sr-only">公式HP</dt>
+                      <dd>
+                        <a href={shop.website} target="_blank" rel="noopener noreferrer" className="font-medium transition-colors hover:opacity-80" style={{ color: brand.primary }}>
+                          公式HPを見る
+                        </a>
+                      </dd>
                     </div>
                   </div>
                 )}

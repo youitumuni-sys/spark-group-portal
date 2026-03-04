@@ -2,23 +2,25 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, User, Heart, LogOut, Search } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import { Menu, X, User, Heart, LogOut, Search, Shield } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/shops', label: '店舗一覧' },
-  { href: '/girls', label: 'スタッフ' },
+  { href: '/girls', label: 'キャスト' },
   { href: '/ranking', label: 'ランキング' },
   { href: '/diary', label: '写メ日記' },
   { href: '/events', label: 'イベント' },
   { href: '/reviews', label: 'レビュー' },
-  { href: '/reserve', label: '予約' },
+  { href: '/recruit', label: '求人情報' },
 ];
 
-const isLoggedIn = false;
-
 export function Header() {
+  const { data: session, status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const isLoggedIn = status === 'authenticated';
+  const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
   return (
     <>
@@ -59,14 +61,26 @@ export function Header() {
                   </button>
                   {userOpen && (
                     <div className="absolute right-0 mt-2 w-44 rounded-xl bg-white border border-gray-100 shadow-xl py-1.5 animate-slideDown">
+                      <div className="px-4 py-2 border-b border-gray-50">
+                        <p className="text-[13px] font-medium text-gray-900 truncate">{session?.user?.name || 'ユーザー'}</p>
+                        <p className="text-[11px] text-gray-400 truncate">{session?.user?.email}</p>
+                      </div>
                       <Link href="/mypage" className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors" onClick={() => setUserOpen(false)}>
                         <User className="h-3.5 w-3.5" />マイページ
                       </Link>
-                      <Link href="/favorites" className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors" onClick={() => setUserOpen(false)}>
+                      <Link href="/mypage/favorites" className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors" onClick={() => setUserOpen(false)}>
                         <Heart className="h-3.5 w-3.5" />お気に入り
                       </Link>
+                      {isAdmin && (
+                        <Link href="/admin" className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-amber-600 hover:bg-gray-50 transition-colors" onClick={() => setUserOpen(false)}>
+                          <Shield className="h-3.5 w-3.5" />管理画面
+                        </Link>
+                      )}
                       <div className="my-1 border-t border-gray-50" />
-                      <button className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-gray-400 hover:text-red-500 hover:bg-gray-50 transition-colors" onClick={() => setUserOpen(false)}>
+                      <button
+                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-gray-400 hover:text-red-500 hover:bg-gray-50 transition-colors"
+                        onClick={() => { signOut({ callbackUrl: '/spark-group-portal/' }); setUserOpen(false); }}
+                      >
                         <LogOut className="h-3.5 w-3.5" />ログアウト
                       </button>
                     </div>
@@ -116,8 +130,17 @@ export function Header() {
           ))}
         </nav>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-50 space-y-2">
-          <Link href="/auth/signin" className="block w-full text-center py-3 text-[13px] font-medium text-gray-600 border border-gray-200 rounded-full hover:border-gray-300 transition-colors" onClick={() => setMobileOpen(false)}>ログイン</Link>
-          <Link href="/auth/signup" className="block w-full text-center py-3 text-[13px] font-bold bg-pink-500 text-white rounded-full hover:bg-pink-600 transition-colors" onClick={() => setMobileOpen(false)}>会員登録</Link>
+          {isLoggedIn ? (
+            <>
+              <Link href="/mypage" className="block w-full text-center py-3 text-[13px] font-medium text-gray-600 border border-gray-200 rounded-full hover:border-gray-300 transition-colors" onClick={() => setMobileOpen(false)}>マイページ</Link>
+              <button onClick={() => { signOut({ callbackUrl: '/spark-group-portal/' }); setMobileOpen(false); }} className="block w-full text-center py-3 text-[13px] font-medium text-red-400 border border-gray-200 rounded-full hover:border-red-300 transition-colors">ログアウト</button>
+            </>
+          ) : (
+            <>
+              <Link href="/auth/signin" className="block w-full text-center py-3 text-[13px] font-medium text-gray-600 border border-gray-200 rounded-full hover:border-gray-300 transition-colors" onClick={() => setMobileOpen(false)}>ログイン</Link>
+              <Link href="/auth/signup" className="block w-full text-center py-3 text-[13px] font-bold bg-pink-500 text-white rounded-full hover:bg-pink-600 transition-colors" onClick={() => setMobileOpen(false)}>会員登録</Link>
+            </>
+          )}
         </div>
       </div>
     </>

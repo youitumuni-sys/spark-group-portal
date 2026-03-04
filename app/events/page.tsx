@@ -1,6 +1,7 @@
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { CalendarDays, MapPin } from 'lucide-react';
-import { prisma } from '@/lib/db';
+import { getEvents } from '@/lib/queries/events';
 import { formatDate, truncate } from '@/lib/utils';
 import type { Metadata } from 'next';
 
@@ -9,44 +10,11 @@ export const metadata: Metadata = {
   description: 'SPARK GROUP 加盟店舗のイベント・キャンペーン情報。',
 };
 
-type EventStatus = 'active' | 'upcoming' | 'all';
-
-interface EventsPageProps {
-  searchParams: Promise<{ status?: string; shopId?: string; page?: string }>;
-}
-
-export default async function EventsPage({ searchParams }: EventsPageProps) {
-  const params = await searchParams;
-  const status = (params.status as EventStatus) || 'all';
-  const shopId = params.shopId;
-  const page = Math.max(1, Number(params.page) || 1);
-  const limit = 12;
+export default async function EventsPage() {
   const now = new Date();
-
-  const where = {
-    isActive: true,
-    ...(shopId && { shopId }),
-    ...(status === 'active' && {
-      startDate: { lte: now },
-      endDate: { gte: now },
-    }),
-    ...(status === 'upcoming' && {
-      startDate: { gt: now },
-    }),
-  };
-
-  const [events, total] = await Promise.all([
-    prisma.event.findMany({
-      where,
-      include: { shop: { select: { name: true, slug: true, area: true } } },
-      orderBy: { startDate: 'desc' },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.event.count({ where }),
-  ]);
-
-  const totalPages = Math.ceil(total / limit);
+  const allEvents = await getEvents();
+  const events = allEvents.filter((e) => e.isActive);
+  const total = events.length;
 
   return (
     <div className="section-container py-10">
@@ -68,14 +36,14 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
           { key: 'upcoming', label: '今後' },
         ] as const).map((item) => {
           const href = item.key === 'all'
-            ? `/events${shopId ? `?shopId=${shopId}` : ''}`
-            : `/events?status=${item.key}${shopId ? `&shopId=${shopId}` : ''}`;
+            ? '/events'
+            : `/events?status=${item.key}`;
           return (
             <Link
               key={item.key}
               href={href}
               className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
-                status === item.key || (item.key === 'all' && !params.status)
+                item.key === 'all'
                   ? 'bg-gray-900 text-white'
                   : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
               }`}
@@ -131,31 +99,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                     </div>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
-
-      {totalPages > 1 && (
-        <div className="mt-10 flex justify-center gap-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-            const sp = new URLSearchParams();
-            if (params.status) sp.set('status', params.status);
-            if (shopId) sp.set('shopId', shopId);
-            if (p > 1) sp.set('page', String(p));
-            const href = `/events${sp.toString() ? `?${sp}` : ''}`;
-            return (
-              <Link
-                key={p}
-                href={href}
-                className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                  p === page
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                {p}
               </Link>
             );
           })}

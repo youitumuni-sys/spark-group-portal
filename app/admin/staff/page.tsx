@@ -1,65 +1,87 @@
-import { prisma } from '@/lib/db';
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Users } from 'lucide-react';
+import { Users, Plus } from 'lucide-react';
 
-interface PageProps {
-  searchParams: Promise<{ shop?: string }>;
-}
+type StaffItem = {
+  id: string; name: string; age?: number; isNew: boolean; isActive: boolean;
+  images: string[]; shop: { id: string; name: string };
+  _count: { reviews: number };
+};
 
-export default async function AdminStaffPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const shopFilter = params.shop;
+type Shop = { id: string; name: string };
 
-  const [staffList, shops] = await Promise.all([
-    prisma.staff.findMany({
-      where: shopFilter ? { shopId: shopFilter } : undefined,
-      include: {
-        shop: { select: { name: true } },
-        _count: { select: { reviews: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.shop.findMany({
-      select: { id: true, name: true },
-      orderBy: { name: 'asc' },
-    }),
-  ]);
+export default function AdminStaffPage() {
+  const [staffList, setStaffList] = useState<StaffItem[]>([]);
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [shopFilter, setShopFilter] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  function showToast(type: 'success' | 'error', message: string) {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  function loadStaff() {
+    setLoading(true);
+    Promise.all([
+      fetch('/api/admin/staff').then((r) => r.json()),
+      fetch('/api/admin/shops').then((r) => r.json()),
+    ]).then(([staffData, shopData]) => {
+      setStaffList(Array.isArray(staffData) ? staffData : []);
+      setShops(Array.isArray(shopData) ? shopData.map((s: Shop) => ({ id: s.id, name: s.name })).sort((a: Shop, b: Shop) => a.name.localeCompare(b.name)) : []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }
+
+  useEffect(() => { loadStaff(); }, []);
+
+  async function handleDelete(id: string, name: string) {
+    if (!confirm(`「${name}」を無効化しますか？`)) return;
+    try {
+      const res = await fetch(`/api/admin/staff/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      showToast('success', '無効化しました');
+      loadStaff();
+    } catch {
+      showToast('error', '操作に失敗しました');
+    }
+  }
+
+  const filtered = shopFilter ? staffList.filter((s) => s.shop.id === shopFilter) : staffList;
 
   return (
     <div className="space-y-6">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-sm font-medium ${toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
           <Users className="w-6 h-6" />
-          スタッフ管理
+          キャスト管理
         </h1>
+        <Link href="/admin/staff/new" className="flex items-center gap-2 px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-lg transition-colors text-sm">
+          <Plus className="w-4 h-4" />新規登録
+        </Link>
       </div>
 
-      {/* フィルタ */}
       <div className="flex items-center gap-3">
         <span className="text-sm text-gray-400">店舗:</span>
         <div className="flex flex-wrap gap-2">
-          <Link
-            href="/admin/staff"
-            className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
-              !shopFilter
-                ? 'bg-amber-500 text-gray-950 font-medium'
-                : 'bg-gray-800 text-gray-400 hover:text-white'
-            }`}
-          >
+          <button onClick={() => setShopFilter('')}
+            className={`text-xs px-3 py-1.5 rounded-full transition-colors ${!shopFilter ? 'bg-pink-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
             すべて
-          </Link>
+          </button>
           {shops.map((shop) => (
-            <Link
-              key={shop.id}
-              href={`/admin/staff?shop=${shop.id}`}
-              className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
-                shopFilter === shop.id
-                  ? 'bg-amber-500 text-gray-950 font-medium'
-                  : 'bg-gray-800 text-gray-400 hover:text-white'
-              }`}
-            >
+            <button key={shop.id} onClick={() => setShopFilter(shop.id)}
+              className={`text-xs px-3 py-1.5 rounded-full transition-colors ${shopFilter === shop.id ? 'bg-pink-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
               {shop.name}
-            </Link>
+            </button>
           ))}
         </div>
       </div>
@@ -79,15 +101,17 @@ export default async function AdminStaffPage({ searchParams }: PageProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800/50">
-              {staffList.length === 0 ? (
+              {loading ? (
+                <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-500">読み込み中...</td></tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-gray-500">
-                    {shopFilter ? 'この店舗にはスタッフがいません' : 'スタッフはまだ登録されていません'}
+                    キャストはまだ登録されていません
                   </td>
                 </tr>
               ) : (
-                staffList.map((staff, i) => {
-                  const staffImages = staff.images as string[];
+                filtered.map((staff, i) => {
+                  const staffImages = Array.isArray(staff.images) ? staff.images : [];
                   return (
                     <tr
                       key={staff.id}
@@ -97,11 +121,7 @@ export default async function AdminStaffPage({ searchParams }: PageProps) {
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden flex-shrink-0">
                             {staffImages?.[0] ? (
-                              <img
-                                src={staffImages[0]}
-                                alt=""
-                                className="w-full h-full object-cover"
-                              />
+                              <img src={staffImages[0]} alt="" className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
                                 {staff.name[0]}
@@ -112,39 +132,29 @@ export default async function AdminStaffPage({ searchParams }: PageProps) {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-300">{staff.shop.name}</td>
-                      <td className="px-4 py-3 text-center text-gray-300">
-                        {staff.age ?? '-'}
-                      </td>
-                      <td className="px-4 py-3 text-center text-gray-300">
-                        {staff._count.reviews}
-                      </td>
+                      <td className="px-4 py-3 text-center text-gray-300">{staff.age ?? '-'}</td>
+                      <td className="px-4 py-3 text-center text-gray-300">{staff._count?.reviews ?? 0}</td>
                       <td className="px-4 py-3 text-center">
                         {staff.isNew ? (
-                          <span className="text-xs px-2 py-0.5 rounded bg-pink-500/20 text-pink-400">
-                            NEW
-                          </span>
+                          <span className="text-xs px-2 py-0.5 rounded bg-pink-500/20 text-pink-400">NEW</span>
                         ) : (
                           <span className="text-xs text-gray-600">-</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span
-                          className={`inline-block text-xs px-2.5 py-1 rounded-full ${
-                            staff.isActive
-                              ? 'text-green-400 bg-green-400/10'
-                              : 'text-red-400 bg-red-400/10'
-                          }`}
-                        >
+                        <span className={`inline-block text-xs px-2.5 py-1 rounded-full ${staff.isActive ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
                           {staff.isActive ? '有効' : '無効'}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <Link
-                          href={`/admin/staff/${staff.id}`}
-                          className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
-                        >
-                          編集
-                        </Link>
+                        <div className="flex items-center justify-center gap-3">
+                          <Link href={`/admin/staff/${staff.id}`} className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
+                            編集
+                          </Link>
+                          <button onClick={() => handleDelete(staff.id, staff.name)} className="text-xs text-red-400 hover:text-red-300 transition-colors">
+                            無効化
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -155,9 +165,7 @@ export default async function AdminStaffPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      <p className="text-xs text-gray-600 text-right">
-        全 {staffList.length} 名
-      </p>
+      <p className="text-xs text-gray-600 text-right">全 {filtered.length} 名</p>
     </div>
   );
 }

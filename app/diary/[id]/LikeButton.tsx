@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 
 interface LikeButtonProps {
   diaryId: string;
@@ -10,32 +10,24 @@ interface LikeButtonProps {
 export function LikeButton({ diaryId, initialCount }: LikeButtonProps) {
   const [count, setCount] = useState(initialCount);
   const [liked, setLiked] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
   function handleLike() {
     if (liked) return;
-
-    startTransition(async () => {
-      const res = await fetch(`/api/diaries/${diaryId}`, { method: 'PATCH' });
-      if (res.ok) {
-        const data = await res.json();
-        setCount(data.likeCount);
-        setLiked(true);
-      }
-    });
+    setCount((c) => c + 1);
+    setLiked(true);
   }
 
   return (
     <button
       onClick={handleLike}
-      disabled={liked || isPending}
+      disabled={liked}
       className={`flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all ${
         liked
-          ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
-          : 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-pink-500/10 hover:text-pink-400 hover:border-pink-500/30'
-      } disabled:opacity-60`}
+          ? 'bg-pink-50 text-pink-500 border border-pink-200'
+          : 'bg-white text-gray-500 border border-gray-200 hover:bg-pink-50 hover:text-pink-500 hover:border-pink-200'
+      } disabled:opacity-80`}
     >
-      <span className="text-lg">{liked ? '♥' : '♡'}</span>
+      <span className="text-lg">{liked ? '\u2665' : '\u2661'}</span>
       <span>{count}</span>
     </button>
   );

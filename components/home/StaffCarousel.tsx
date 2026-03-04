@@ -32,9 +32,9 @@ export function StaffCarousel({ staffList }: StaffCarouselProps) {
           const color = accentColors[i % accentColors.length];
           return (
             <Link key={staff.id} href={`/girls/${staff.id}`} className="flex-shrink-0 w-48 snap-start">
-              <div className="rounded-xl bg-white border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                {/* カラーライン */}
-                <div className="h-[3px]" style={{ backgroundColor: color }} />
+              <div className="rounded-2xl bg-white shadow-md overflow-hidden transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+                {/* ブランドカラー上部アクセントライン */}
+                <div className="h-1" style={{ backgroundColor: color }} />
 
                 {/* 画像 */}
                 <div className="aspect-[3/4] bg-gray-50 relative">
@@ -48,7 +48,7 @@ export function StaffCarousel({ staffList }: StaffCarouselProps) {
                     </div>
                   )}
                   {staff.isNew && (
-                    <span className="absolute top-2 left-2 inline-block px-2 py-0.5 text-[10px] font-bold text-white rounded-md bg-pink-500 shadow-sm">
+                    <span className="absolute top-2 left-2 inline-block px-2.5 py-0.5 text-[10px] font-bold text-white rounded-full bg-gradient-to-r from-pink-500 to-rose-400 shadow-md">
                       NEW
                     </span>
                   )}
@@ -58,10 +58,12 @@ export function StaffCarousel({ staffList }: StaffCarouselProps) {
                 <div className="p-3">
                   <p className="font-semibold text-[14px] text-gray-900 truncate">{staff.name}</p>
                   {staff.shop && (
-                    <p className="mt-0.5 text-[11px] text-gray-400 truncate">{staff.shop.name}</p>
+                    <span className="mt-1 inline-block px-2 py-0.5 text-[10px] font-medium rounded-full truncate max-w-full" style={{ backgroundColor: `${color}12`, color }}>
+                      {staff.shop.name}
+                    </span>
                   )}
                   {staff.age && (
-                    <p className="mt-1 text-[11px] text-gray-300">{staff.age}歳</p>
+                    <p className="mt-1.5 text-[11px] text-gray-400">{staff.age}歳</p>
                   )}
                 </div>
               </div>

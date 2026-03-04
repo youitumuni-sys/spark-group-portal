@@ -1,5 +1,6 @@
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
-import { prisma } from '@/lib/db';
+import { getDiaries } from '@/lib/queries/diaries';
 import { formatDate, truncate } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -11,26 +12,15 @@ export const metadata = {
 };
 
 export default async function VideosPage() {
-  const diaries = await prisma.diary.findMany({
-    where: {
-      videoUrl: { not: null },
-      isPublished: true,
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 24,
-    include: {
-      staff: {
-        include: {
-          shop: { select: { id: true, name: true } },
-        },
-      },
-    },
-  });
+  const allDiaries = await getDiaries(100);
+  const diaries = allDiaries
+    .filter((d) => d.videoUrl)
+    .slice(0, 24);
 
   return (
     <div className="section-container py-8">
       <h1 className="text-2xl font-bold mb-6">
-        <span className="gradient-text">動画日記</span>
+        <span className="text-pink-500">動画日記</span>
       </h1>
 
       {diaries.length === 0 ? (
@@ -53,8 +43,8 @@ export default async function VideosPage() {
                     href={`/girls/${diary.staffId}`}
                     className="flex items-center gap-2 text-xs text-gray-300 hover:text-amber-400 transition-colors"
                   >
-                    <span className="font-medium">{diary.staff.name}</span>
-                    <Badge variant="gold">{diary.staff.shop.name}</Badge>
+                    <span className="font-medium">{diary.staff?.name ?? '-'}</span>
+                    <Badge variant="gold">{diary.staff?.shop?.name ?? '-'}</Badge>
                   </Link>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
                     <span>👁 {diary.viewCount}</span>

@@ -52,7 +52,7 @@ export function ReviewList({ reviews, showStaffInfo = true }: ReviewListProps) {
       {reviews.map((review) => (
         <div
           key={review.id}
-          className="rounded-xl border border-gray-800 bg-gray-900/60 p-4"
+          className="rounded-xl border border-gray-100 bg-white p-4 hover:shadow-sm transition-shadow"
         >
           <div className="mb-3 flex items-start justify-between">
             <div className="flex items-center gap-3">
@@ -62,22 +62,22 @@ export function ReviewList({ reviews, showStaffInfo = true }: ReviewListProps) {
                 size="sm"
               />
               <div>
-                <p className="text-sm font-medium text-gray-200">
+                <p className="text-sm font-medium text-gray-900">
                   {review.user.nickname || '匿名ユーザー'}
                 </p>
                 {showStaffInfo && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-400">
                     {review.staff.shop.name} / {review.staff.name}
                   </p>
                 )}
               </div>
             </div>
-            <time className="text-xs text-gray-500">{formatDate(review.createdAt)}</time>
+            <time className="text-xs text-gray-400">{formatDate(review.createdAt)}</time>
           </div>
 
           <Rating value={review.rating} readonly size="sm" className="mb-2" />
 
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-300">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-600">
             {review.comment}
           </p>
         </div>

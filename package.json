@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 4000 -H 0.0.0.0",
+    "scrape": "python scripts/scrape-heaven.py",
     "build": "prisma generate && next build",
+    "build:full": "python scripts/scrape-heaven.py && prisma generate && next build",
     "postinstall": "prisma generate",
     "db:setup": "prisma db push --accept-data-loss && tsx prisma/seed.ts",
     "start": "next start",

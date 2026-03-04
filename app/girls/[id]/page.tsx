@@ -1,7 +1,8 @@
+export const dynamic = 'force-dynamic';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/db';
+import { getStaffById } from '@/lib/queries/staff';
 import { formatAge, formatThreeSizes, formatDate, truncate } from '@/lib/utils';
 import { Rating } from '@/components/ui/Rating';
 
@@ -11,16 +12,13 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const staff = await prisma.staff.findUnique({
-    where: { id },
-    select: { name: true, profile: true, shop: { select: { name: true } } },
-  });
+  const s = await getStaffById(id);
 
-  if (!staff) return { title: 'キャスト | SPARK GROUP' };
+  if (!s) return { title: 'キャスト | SPARK GROUP' };
 
   return {
-    title: `${staff.name}（${staff.shop.name}）| SPARK GROUP`,
-    description: truncate(staff.profile, 120),
+    title: `${s.name}（${s.shop.name}）| SPARK GROUP`,
+    description: truncate(s.profile, 120),
   };
 }
 
@@ -29,35 +27,18 @@ const DAY_LABELS = ['日', '月', '火', '水', '木', '金', '土'];
 export default async function GirlDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const staff = await prisma.staff.findUnique({
-    where: { id },
-    include: {
-      shop: { select: { id: true, name: true, slug: true, area: true, genre: true } },
-      diaries: {
-        where: { isPublished: true },
-        orderBy: { createdAt: 'desc' },
-        take: 6,
-      },
-      reviews: {
-        where: { isPublished: true },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        include: { user: { select: { nickname: true, image: true } } },
-      },
-      schedules: {
-        where: {
-          date: {
-            gte: new Date(),
-            lt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          },
-        },
-        orderBy: { date: 'asc' },
-      },
-      _count: { select: { reviews: true, favoritedBy: true } },
-    },
-  });
+  const foundStaff = await getStaffById(id);
+  if (!foundStaff || !foundStaff.isActive) notFound();
 
-  if (!staff || !staff.isActive) notFound();
+  const staff = {
+    ...foundStaff,
+    diaries: foundStaff.diaries,
+    reviews: foundStaff.reviews,
+    schedules: foundStaff.schedules,
+    _count: { reviews: foundStaff._count.reviews, favoritedBy: foundStaff._count.favoritedBy },
+  };
+
+  if (!staff.isActive) notFound();
 
   const images = staff.images as string[];
   const avgRating =
